@@ -14,6 +14,11 @@
 		"eventsource": "",
 		"request": ""
 	},
+	"node-red": {
+		"nodes": {
+			"sparkcore": "nodes/sparkcore.js"
+		}
+	},
 	"keywords": [
 		"sparkcore",
 		"nodered",
