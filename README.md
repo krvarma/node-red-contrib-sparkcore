@@ -25,8 +25,8 @@ The node implements basic things to interact with Spark Core, such as call a fun
  3. msg.name contains the name of the core
 
 **Subscribe to variables**
-1. msg.raw contains the raw JSON string returned
-2. msg.payload the event data 
-3. msg.ttl contains the TTL 
-4. msg.published_at contain the published date and time 
-5. msg.coreid contains the core id
+ 1. msg.raw contains the raw JSON string returned
+ 2. msg.payload the event data 
+ 3. msg.ttl contains the TTL 
+ 4. msg.published_at contain the published date and time 
+ 5. msg.coreid contains the core id
