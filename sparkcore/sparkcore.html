@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 IBM Corp.
+  Copyright 2014 Krishnaraj Varma
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 <script type="text/x-red" data-template-name="SparkCore in">
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-flag"></i> Core ID</label>
-        <input type="text" id="node-input-coreid" placeholder="coreid">
+        <input type="text" id="node-config-input-coreid" placeholder="coreid">
     </div>
     <div class="form-row">
         <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="text" id="node-input-accesstoken" placeholder="accesstoken">
+        <input type="text" id="node-config-input-accesstoken" placeholder="accesstoken">
     </div>
 	<br/>
 	<div class="form-row">
@@ -71,8 +71,6 @@
     RED.nodes.registerType('SparkCore in',{
         category: 'input',
         defaults: {
-            coreid: {value:"", required: true},
-            accesstoken: {value:"", required: true},
 			method: {value:"function", required: true},
 			fve: {value:"", required: true},
 			param: {value:""},
@@ -87,6 +85,40 @@
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
+        },
+		oneditprepare: function() {
+            $.getJSON('sparkcore/'+this.id,function(data) {
+                if (data.coreid) {
+                    $('#node-config-input-coreid').val(data.coreid);
+                }
+                if (data.hasToken) {
+                    $('#node-config-input-accesstoken').val('__TOKEN__');
+                } else {
+                    $('#node-config-input-accesstoken').val('');
+                }
+            });
+        },
+		oneditsave: function() {
+            var credentials = {};
+            var newCoreId = $('#node-config-input-coreid').val();
+            var newToken = $('#node-config-input-accesstoken').val();
+            credentials.coreid = newCoreId;
+            if (newToken != '__TOKEN__') {
+                credentials.accesstoken = newToken;
+            }
+            $.ajax({
+                url: 'sparkcore/'+this.id,
+                type: 'POST',
+                data: credentials,
+                success: function(result){}
+            });
+        },
+        ondelete: function() {
+            $.ajax({
+                url: 'sparkcore/'+this.id,
+                type: 'DELETE',
+                success: function(result) {}
+            });
         }
     });
 </script>
@@ -94,11 +126,11 @@
 <script type="text/x-red" data-template-name="SparkCore out">
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-flag"></i> Core ID</label>
-        <input type="text" id="node-input-coreid" placeholder="coreid">
+        <input type="text" id="node-config-input-coreid" placeholder="coreid">
     </div>
     <div class="form-row">
         <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="text" id="node-input-accesstoken" placeholder="accesstoken">
+        <input type="text" id="node-config-input-accesstoken" placeholder="accesstoken">
     </div>
 	<br/>
 	<div class="form-row">
@@ -141,6 +173,40 @@
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
+        },
+		oneditprepare: function() {
+            $.getJSON('sparkcore/'+this.id,function(data) {
+                if (data.coreid) {
+                    $('#node-config-input-coreid').val(data.coreid);
+                }
+                if (data.hasToken) {
+                    $('#node-config-input-accesstoken').val('__TOKEN__');
+                } else {
+                    $('#node-config-input-accesstoken').val('');
+                }
+            });
+        },
+		oneditsave: function() {
+            var credentials = {};
+            var newCoreId = $('#node-config-input-coreid').val();
+            var newToken = $('#node-config-input-accesstoken').val();
+            credentials.coreid = newCoreId;
+            if (newToken != '__TOKEN__') {
+                credentials.accesstoken = newToken;
+            }
+            $.ajax({
+                url: 'sparkcore/'+this.id,
+                type: 'POST',
+                data: credentials,
+                success: function(result){}
+            });
+        },
+        ondelete: function() {
+            $.ajax({
+                url: 'sparkcore/'+this.id,
+                type: 'DELETE',
+                success: function(result) {}
+            });
         }
     });
 </script>
