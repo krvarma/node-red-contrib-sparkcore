@@ -16,7 +16,7 @@
 	},
 	"node-red": {
 		"nodes": {
-			"sparkcore": "nodes/sparkcore.js"
+			"sparkcore": "sparkcore/sparkcore.js"
 		}
 	},
 	"keywords": [
