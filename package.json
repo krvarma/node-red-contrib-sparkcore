@@ -1,0 +1,24 @@
+{
+	"name": "node-red-contrib-sparkcore",
+	"version": "0.0.1",
+	"repository" : {
+		"type":"git",
+		"url":"https://github.com/krvarma/node-red-contrib-sparkcore"
+	},
+	"description": "Node-RED node to connect to Spark Core. This can be used to connect to Spark Core and call functions, read variables or listen to events",
+	"main": "sparkcore.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"eventsource": "",
+		"request": ""
+	},
+	"keywords": [
+		"sparkcore",
+		"nodered",
+		"iot"
+	],
+	"author": "Krishnaraj Varma <krvarma@gmail.com>",
+	"license": "ISC"
+}
