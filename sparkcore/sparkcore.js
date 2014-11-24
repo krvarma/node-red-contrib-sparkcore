@@ -64,9 +64,8 @@ module.exports = function(RED) {
 				var msg = {
 					raw: data,
 					payload:data.data,
-					ttl: data.ttl,
 					published_at: data.published_at,
-					coreid: data.coreid
+					id: data.coreid
 				};
 			
 				sparkmodule.send(msg);
@@ -105,10 +104,7 @@ module.exports = function(RED) {
 						var msg = {
 							raw: data,
 							payload: data.return_value,
-							id: data.id,
-							name: data.name,
-							last_app: data.last_app,
-							connected: data.connected
+							id: data.id
 						};
 
 						sparkmodule.send(msg);
@@ -128,8 +124,7 @@ module.exports = function(RED) {
 						var msg = {
 							raw: data,
 							payload: data.result,
-							name: data.name,
-							cmd: data.cmd
+							id: data.coreInfo.deviceID
 						};
 
 						sparkmodule.send(msg);

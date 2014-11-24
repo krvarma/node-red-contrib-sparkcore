@@ -17,11 +17,11 @@
 <script type="text/x-red" data-template-name="SparkCore in">
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-flag"></i> Core ID</label>
-        <input type="text" id="node-config-input-coreid" placeholder="coreid">
+        <input type="password" id="node-config-input-coreid" placeholder="coreid">
     </div>
     <div class="form-row">
         <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="text" id="node-config-input-accesstoken" placeholder="accesstoken">
+        <input type="password" id="node-config-input-accesstoken" placeholder="accesstoken">
     </div>
 	<br/>
 	<div class="form-row">
@@ -79,7 +79,7 @@
         color:"#00ACED",
         inputs:0,
         outputs:1,
-        icon: "arrow.png",
+        icon: "spark.png",
         label: function() {
             return this.name|| this.method + " - " + this.fve;
         },
@@ -167,7 +167,7 @@
         color:"#00ACED",
         inputs:1,
         outputs:0,
-        icon: "arrow.png",
+        icon: "spark.png",
         label: function() {
             return this.name||"function" + " - " + this.fve;
         },
