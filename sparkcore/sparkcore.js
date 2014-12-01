@@ -14,6 +14,7 @@ module.exports = function(RED) {
 	var interval_id;
 	var method;
 	var es;
+	var baseurl;
 
     function SparkCoreIN(n) {
         RED.nodes.createNode(this,n);
@@ -25,6 +26,13 @@ module.exports = function(RED) {
 		this.name = n.fve;
 		this.param = n.param;
 		this.method = n.method;
+		this.baseurl = n.baseurl;
+		
+		if(this.baseurl === null || this.baseurl === ''){
+			this.baseurl = "https://api.spark.io";
+		}
+		
+		console.log("Using base URL: " + this.baseurl);
 		
 		var credentials = RED.nodes.getCredentials(n.id);
 		
@@ -54,9 +62,11 @@ module.exports = function(RED) {
 			}
 		}
 		else if(this.method == "subscribe"){
-			var url = "https://api.spark.io/v1/devices/" + this.core_id + "/events/" + this.name + "?access_token=" + this.access_token;
+			var url = this.baseurl + "/v1/devices/" + this.core_id + "/events/" + this.name + "?access_token=" + this.access_token;
 			
 			this.es = new EventSource(url);
+			
+			console.log(url);
 		
 			this.es.addEventListener(this.name, function(e){
 				var data = JSON.parse(e.data);
@@ -88,7 +98,7 @@ module.exports = function(RED) {
 		}
 		
 		this.on("callfunction", function(){
-			var url = "https://api.spark.io/v1/devices/" + this.core_id + "/" + this.name;
+			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name;
 			
 			Request.post(
 				url, 
@@ -99,6 +109,7 @@ module.exports = function(RED) {
 					}
 				},
 				function (error, response, body){
+					console.log(body);
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
 						var msg = {
@@ -107,6 +118,8 @@ module.exports = function(RED) {
 							id: data.id
 						};
 
+						console.log(data);
+						
 						sparkmodule.send(msg);
 					}
 				}
@@ -114,10 +127,11 @@ module.exports = function(RED) {
 		});
 		
 		this.on("getvariable", function(){
-			var url = "https://api.spark.io/v1/devices/" + this.core_id + "/" + this.name + "?access_token=" + this.access_token;
+			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name + "?access_token=" + this.access_token;
 			
 			Request.get(url,
 				function (error, response, body){
+					console.log(body);
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
 						
@@ -141,6 +155,13 @@ module.exports = function(RED) {
 		
 		this.name = n.fve;
 		this.param = n.param;
+		this.baseurl = n.baseurl;
+		
+		if(this.baseurl === null || this.baseurl === ''){
+			this.baseurl = "https://api.spark.io";
+		}
+		
+		console.log("Using base URL: " + this.baseurl);
 		
 		var credentials = RED.nodes.getCredentials(n.id);
 		
@@ -159,7 +180,7 @@ module.exports = function(RED) {
 		}
 		
 		this.on("input", function(msg){
-			var url = "https://api.spark.io/v1/devices/" + this.core_id + "/" + this.name;
+			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name;
 			
 			var parameter = this.param;
 			
@@ -184,9 +205,7 @@ module.exports = function(RED) {
 							raw: data,
 							payload: data.return_value,
 							id: data.id,
-							name: data.name,
-							last_app: data.last_app,
-							connected: data.connected
+							name: data.name
 						};
 
 						sparkmodule.send(msg);
@@ -215,7 +234,7 @@ module.exports = function(RED) {
 		var credentials = RED.nodes.getCredentials(req.params.id);
 
 		if (credentials) {
-			res.send(JSON.stringify({coreid:credentials.coreid,hasToken:(credentials.accesstoken&&credentials.coreid!=="")}));
+			res.send(JSON.stringify({coreid:credentials.coreid,accesstoken:credentials.accesstoken}));
 		} else {
 			res.send(JSON.stringify({}));
 		}
