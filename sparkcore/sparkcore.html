@@ -17,7 +17,7 @@
 <script type="text/x-red" data-template-name="SparkCore in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="icon-tag"></i>Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="Spark Cloud URL, leave blank if you are using Spark Cloud">
+        <input type="text" id="node-input-baseurl" placeholder="Spark Cloud URL or leave blank if you are using Spark Cloud">
     </div>
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-tag"></i> Core ID</label>
@@ -31,6 +31,7 @@
 	<div class="form-row">
         <label for="node-input-method"><i class="fa fa-tasks"></i> Method</label>
         <select type="text" id="node-input-method" style="width:72%;">
+			<option value="readmsg">msg.operation</option>
 			<option value="function">Call a function</option>
 			<option value="variable">Read a Variable</option>
 			<option value="subscribe">Subscribe to Event</option>
@@ -38,16 +39,16 @@
     </div>
 	<div class="form-row">
         <label for="node-input-fve"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-fve" placeholder="name of function/variable/event">
+        <input type="text" id="node-input-fve" placeholder="msg.name">
     </div>
 	<div class="form-row">
         <label for="node-input-param"><i class="icon-tag"></i> Parameter</label>
-        <input type="text" id="node-input-param" placeholder="function parameter">
+        <input type="text" id="node-input-param" placeholder="msg.payload">
     </div>
 	<br/>
 	<div class="form-row">
         <label for="node-input-repeat"><i class="icon-tag"></i> Repeat</label>
-        <input type="text" id="node-input-repeat" placeholder="repeat">
+        <input type="text" id="node-input-repeat" placeholder="msg.repeat">
     </div>
 </script>
 
@@ -75,14 +76,14 @@
     RED.nodes.registerType('SparkCore in',{
         category: 'Spark Core',
         defaults: {
-			baseurl: {value:"https://api.spark.io", required:true},
-			method: {value:"function", required: true},
-			fve: {value:"", required: true},
+			baseurl: {value:"https://api.spark.io"},
+			method: {value:"readmsg"},
+			fve: {value:""},
 			param: {value:""},
-			repeat: {value:60}
+			repeat: {value:0}
         },
         color:"#00ACED",
-        inputs:0,
+        inputs:1,
         outputs:1,
         icon: "spark.png",
         label: function() {
@@ -143,11 +144,11 @@
 	<br/>
 	<div class="form-row">
         <label for="node-input-fve"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-fve" placeholder="Name of the Function">
+        <input type="text" id="node-input-fve" placeholder="msg.name">
     </div>
 	<div class="form-row">
         <label for="node-input-param"><i class="icon-tag"></i> Parameter</label>
-        <input type="text" id="node-input-param" placeholder="Function parameter, leave blank to send message payload">
+        <input type="text" id="node-input-param" placeholder="msg.payload">
     </div>
 </script>
 
@@ -167,8 +168,8 @@
     RED.nodes.registerType('SparkCore out',{
         category: 'Spark Core',
         defaults: {
-			baseurl: {value:"https://api.spark.io", required:true},
-			fve: {value:"", required: true},
+			baseurl: {value:"https://api.spark.io"},
+			fve: {value:""},
 			param: {value:""}
         },
         color:"#00ACED",
