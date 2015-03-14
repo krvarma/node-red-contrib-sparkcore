@@ -18,15 +18,11 @@ module.exports = function(RED) {
 		this.param = n.param;
 		this.method = n.method;
 		this.baseurl = n.baseurl;
-		
-		console.log(this);
-		
+	
 		// Check base URL or default to Spark Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
 			this.baseurl = "https://api.spark.io";
 		}
-		
-		console.log("Using base URL: " + this.baseurl);
 
 		// Check access token
 		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
@@ -50,8 +46,6 @@ module.exports = function(RED) {
 		this.on("input", function(msg){
 			// Retrieve all parameters from Message
 			var val = msg.name;
-			
-			console.log(msg);
 			
 			// Retrieve name
 			if(val && val.length > 0){
@@ -104,8 +98,6 @@ module.exports = function(RED) {
 				var url = this.baseurl + "/v1/devices/" + this.core_id + "/events/" + this.name + "?access_token=" + this.access_token;
 				
 				this.es = new EventSource(url);
-				
-				console.log(url);
 			
 				// Add Event Listener
 				this.es.addEventListener(this.name, function(e){
@@ -129,7 +121,6 @@ module.exports = function(RED) {
 			else if(this.method == "variable"){
 				// Check for repeat and start timer
 				if (this.repeat && !isNaN(this.repeat) && this.repeat > 0) {
-					console.log("Repeat = "+this.repeat);
 					
 					this.interval_id = setInterval( function() {
 						sparkmodule.emit("getvariable",{});
@@ -163,7 +154,6 @@ module.exports = function(RED) {
 					}
 				},
 				function (error, response, body){
-					console.log(body);
 					// If not error then prepare message and send
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
@@ -172,8 +162,6 @@ module.exports = function(RED) {
 							payload: data.return_value,
 							id: data.id
 						};
-
-						console.log(data);
 						
 						sparkmodule.send(msg);
 					}
@@ -255,8 +243,6 @@ module.exports = function(RED) {
 		this.on("input", function(msg){
 			var val = msg.name;
 			
-			console.log(msg);
-			
 			// Retrieve name
 			if(val && val.length > 0){
 				this.name = val;
@@ -303,8 +289,6 @@ module.exports = function(RED) {
 					// If not error, send to Node-RED
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
-						
-						console.log(data);
 						
 						var msg = {
 							raw: data,
@@ -361,8 +345,6 @@ module.exports = function(RED) {
 		});
 		
 		req.on('end', function(){
-			console.log(querystring);
-			
 			var newCreds = querystring.parse(body);
 			var credentials = RED.nodes.getCredentials(req.params.id)||{};
 			if (newCreds.coreid === null || newCreds.coreid === "") {
