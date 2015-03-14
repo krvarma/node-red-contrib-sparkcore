@@ -19,27 +19,26 @@ module.exports = function(RED) {
 		this.method = n.method;
 		this.baseurl = n.baseurl;
 		
+		console.log(this);
+		
 		// Check base URL or default to Spark Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
 			this.baseurl = "https://api.spark.io";
 		}
 		
 		console.log("Using base URL: " + this.baseurl);
-		
-		// Get all credentials
-		var credentials = RED.nodes.getCredentials(n.id);
-		
+
 		// Check access token
-		if ((credentials) && (credentials.hasOwnProperty("accesstoken"))) { 
-			this.access_token = credentials.accesstoken; 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
+			this.access_token = this.credentials.accesstoken; 
 		}
         else { 
 			this.error("No Spark Core access token set"); 
 		}
         
 		// Check core id
-		if ((credentials) && (credentials.hasOwnProperty("coreid"))) { 
-			this.core_id = credentials.coreid; 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("coreid"))) { 
+			this.core_id = this.credentials.coreid; 
 		}
         else { 
 			this.error("No Spark Core device id set"); 
@@ -59,13 +58,9 @@ module.exports = function(RED) {
 				this.name = val;
 			}
 			
-			val = msg.payload;
-			
 			// Retrieve payload
-			if(val && val.length > 0){
-				this.param = val;
-			}
-			
+			this.param = msg.payload;
+						
 			val = msg.operation;
 			
 			// Retrieve Operation
@@ -215,6 +210,13 @@ module.exports = function(RED) {
 		});
     }
 	
+	RED.nodes.registerType("SparkCore in",SparkCoreIN, {
+        credentials: {
+            coreid: {type:"password"},
+            accesstoken: {type: "password"}
+        }
+	});
+	
 	// Node-RED Output variable
 	function SparkCoreOUT(n) {
 		var sparkmodule;
@@ -234,20 +236,17 @@ module.exports = function(RED) {
 		
 		console.log("Using base URL: " + this.baseurl);
 		
-		// Get all credentials
-		var credentials = RED.nodes.getCredentials(n.id);
-		
 		// Check access token
-		if ((credentials) && (credentials.hasOwnProperty("accesstoken"))) { 
-			this.access_token = credentials.accesstoken; 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
+			this.access_token = this.credentials.accesstoken; 
 		}
         else { 
 			this.error("No Spark Core access token set"); 
 		}
         
 		// Check Core ID
-		if ((credentials) && (credentials.hasOwnProperty("coreid"))) { 
-			this.core_id = credentials.coreid; 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("coreid"))) { 
+			this.core_id = this.credentials.coreid; 
 		}
         else { 
 			this.error("No Spark Core device id set"); 
@@ -321,8 +320,12 @@ module.exports = function(RED) {
 		});
     }
 	
-    RED.nodes.registerType("SparkCore in",SparkCoreIN);
-	RED.nodes.registerType("SparkCore out",SparkCoreOUT);
+	RED.nodes.registerType("SparkCore out",SparkCoreOUT, {
+        credentials: {
+            coreid: {type:"password"},
+            accesstoken: {type: "password"}
+        }
+	});
 	
 	SparkCoreIN.prototype.close = function() {
         if (this.interval_id != null) {
@@ -358,6 +361,8 @@ module.exports = function(RED) {
 		});
 		
 		req.on('end', function(){
+			console.log(querystring);
+			
 			var newCreds = querystring.parse(body);
 			var credentials = RED.nodes.getCredentials(req.params.id)||{};
 			if (newCreds.coreid === null || newCreds.coreid === "") {

@@ -21,11 +21,11 @@
     </div>
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-tag"></i> Core ID</label>
-        <input type="password" id="node-config-input-coreid" placeholder="Spark Core ID">
+        <input type="password" id="node-input-coreid" placeholder="Spark Core ID">
     </div>
     <div class="form-row">
         <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="password" id="node-config-input-accesstoken" placeholder="Spark Cloud Access Token">
+        <input type="password" id="node-input-accesstoken" placeholder="Spark Cloud Access Token">
     </div>
 	<br/>
 	<div class="form-row">
@@ -82,6 +82,10 @@
 			param: {value:""},
 			repeat: {value:0}
         },
+		credentials: {
+            coreid: {type:"password"},
+            accesstoken: {type: "password"}
+        },
         color:"#00ACED",
         inputs:1,
         outputs:1,
@@ -96,20 +100,22 @@
             $.getJSON('sparkcore/'+this.id,function(data) {
 				console.log(data);
                 if (data.coreid) {
-                    $('#node-config-input-coreid').val(data.coreid);
+                    $('#node-input-coreid').val(data.coreid);
                 }
                 if (data.accesstoken) {
-                    $('#node-config-input-accesstoken').val(data.accesstoken);
+                    $('#node-input-accesstoken').val(data.accesstoken);
                 }
             });
         },
 		oneditsave: function() {
             var credentials = {};
-            var newCoreId = $('#node-config-input-coreid').val();
-            var newToken = $('#node-config-input-accesstoken').val();
+            var newCoreId = $('#node-input-coreid').val();
+            var newToken = $('#node-input-accesstoken').val();
             
 			credentials.coreid = newCoreId;
             credentials.accesstoken = newToken;
+			
+			console.log(credentials);
 
             $.ajax({
                 url: 'sparkcore/'+this.id,
@@ -135,11 +141,11 @@
     </div>
     <div class="form-row">
         <label for="node-input-coreid"><i class="icon-flag"></i> Core ID</label>
-        <input type="password" id="node-config-input-coreid" placeholder="Spark Core ID">
+        <input type="password" id="node-input-coreid" placeholder="Spark Core ID">
     </div>
     <div class="form-row">
         <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="password" id="node-config-input-accesstoken" placeholder="Spark Cloud Access Token">
+        <input type="password" id="node-input-accesstoken" placeholder="Spark Cloud Access Token">
     </div>
 	<br/>
 	<div class="form-row">
@@ -172,12 +178,16 @@
 			fve: {value:""},
 			param: {value:""}
         },
+		credentials: {
+            coreid: {type:"password"},
+            accesstoken: {type: "password"}
+        },
         color:"#00ACED",
         inputs:1,
         outputs:1,
         icon: "spark.png",
         label: function() {
-            return this.name||"function" + " - " + this.fve;
+            return this.name||"function" + " - " + (this.fve || "dynamic");
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
@@ -185,17 +195,17 @@
 		oneditprepare: function() {
             $.getJSON('sparkcore/'+this.id,function(data) {
                 if (data.coreid) {
-                    $('#node-config-input-coreid').val(data.coreid);
+                    $('#node-input-coreid').val(data.coreid);
                 }
                 if (data.accesstoken) {
-                    $('#node-config-input-accesstoken').val(data.accesstoken);
+                    $('#node-input-accesstoken').val(data.accesstoken);
                 }
             });
         },
 		oneditsave: function() {
             var credentials = {};
-            var newCoreId = $('#node-config-input-coreid').val();
-            var newToken = $('#node-config-input-accesstoken').val();
+            var newCoreId = $('#node-input-coreid').val();
+            var newToken = $('#node-input-accesstoken').val();
 
             credentials.coreid = newCoreId;
 			credentials.accesstoken = newToken;
