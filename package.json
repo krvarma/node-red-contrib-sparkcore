@@ -3,10 +3,10 @@
 	"version": "0.0.13",
 	"repository" : {
 		"type":"git",
-		"url":"https://github.com/krvarma/node-red-contrib-particle"
+		"url":"https://github.com/chuank/node-red-contrib-particle"
 	},
 	"description": "Node-RED node to connect to Particle.io devices. This can be used to connect to Particle.io devices and call functions, read variables or listen to Server-Sent Events (SSEs)",
-	"main": "particleio.js",
+	"main": "particle.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -17,7 +17,7 @@
 	},
 	"node-red": {
 		"nodes": {
-			"particleio": "particleio/particleio.js"
+			"particle": "particle/particle.js"
 		}
 	},
 	"keywords": [
@@ -25,7 +25,8 @@
 		"core",
 		"photon"
 		"node-red",
-		"iot"
+		"iot",
+		"spark"
 	],
 	"author": "Krishnaraj Varma <krvarma@gmail.com>",
 	"contributors": { "name" : "Chuan Khoo", "url" : "http://chuank.com" },
