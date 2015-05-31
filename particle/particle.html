@@ -18,7 +18,7 @@
 <script type="text/x-red" data-template-name="Particle in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="leave blank if you are using the Particle.io Cloud">
+        <input type="text" id="node-input-baseurl" placeholder="leave blank if using the Particle.io Cloud">
     </div>
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
@@ -93,7 +93,7 @@
         outputs:1,
         icon: "particle.png",
         label: function() {
-            return this.name|| this.method + " - " + this.fve;
+            return this.name || credentials.devid + " " + this.method + " - " + this.fve;
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
@@ -188,8 +188,9 @@
         inputs:1,
         outputs:1,
         icon: "particle.png",
+        align: "right",
         label: function() {
-            return this.name||"function" + " - " + (this.fve || "dynamic");
+            return this.name || credentials.devid + " " + (this.fve || "dynamic");
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";

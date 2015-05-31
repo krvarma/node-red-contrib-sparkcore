@@ -101,6 +101,7 @@ module.exports = function(RED) {
 					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
 				} else {											// local cloud
 					url = this.baseurl + "/v1/events/" + this.name + "?access_token=" + this.access_token;
+					console.log("local cloud detected, public firehose only!");
 				}
 				
 				this.es = new EventSource(url);
