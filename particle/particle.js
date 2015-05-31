@@ -182,7 +182,7 @@ module.exports = function(RED) {
 			console.log("Reading variable '" + this.name + "'");
 			console.log("URL '" + url + "'");
 			
-			// Read Spark Core variable
+			// Read Particle device variable
 			Request.get(url,
 				function (error, response, body){
 					console.log(body);
