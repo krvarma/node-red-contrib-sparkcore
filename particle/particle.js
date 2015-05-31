@@ -4,12 +4,12 @@ var querystring = require('querystring');
 
 module.exports = function(RED) {
 	// Node-RED Input Module
-    function SparkCoreIN(n) {
-		var sparkmodule = null;
+    function ParticleIN(n) {
+		var particlemodule = null;
 	
         RED.nodes.createNode(this,n);
 		
-		sparkmodule = this;
+		particlemodule = this;
 		
 		// Get all properties
         this.interval_id = null;
@@ -19,9 +19,9 @@ module.exports = function(RED) {
 		this.method = n.method;
 		this.baseurl = n.baseurl;
 	
-		// Check base URL or default to Spark Cloud URL.
+		// Check base URL or default to Particle Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
-			this.baseurl = "https://api.spark.io";
+			this.baseurl = "https://api.particle.io";
 		}
 
 		// Check access token
@@ -29,18 +29,18 @@ module.exports = function(RED) {
 			this.access_token = this.credentials.accesstoken; 
 		}
         else { 
-			this.error("No Spark Core access token set"); 
+			this.error("No Particle Core access token set"); 
 		}
         
-		// Check core id
-		if ((this.credentials) && (this.credentials.hasOwnProperty("coreid"))) { 
-			this.core_id = this.credentials.coreid; 
+		// Check device id
+		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
+			this.dev_id = this.credentials.devid; 
 		}
         else { 
-			this.error("No Spark Core device id set"); 
+			this.error("No Particle Core device id set"); 
 		}
 		
-		setTimeout( function(){ sparkmodule.emit("process",{}); }, 100);
+		setTimeout( function(){ particlemodule.emit("process",{}); }, 100);
 		
 		// Called when there an input
 		this.on("input", function(msg){
@@ -73,7 +73,7 @@ module.exports = function(RED) {
 			console.log("Name: " + this.name);
 			console.log("Parameter: " + this.param);
 			
-			setTimeout( function(){ sparkmodule.emit("process",{}); }, 100);
+			setTimeout( function(){ particlemodule.emit("process",{}); }, 100);
 		});
 		
 		// Perform operations based on the method parameter.
@@ -85,17 +85,23 @@ module.exports = function(RED) {
 					console.log("Repeat = "+this.repeat);
 					
 					this.interval_id = setInterval( function() {
-						sparkmodule.emit("callfunction",{});
+						particlemodule.emit("callfunction",{});
 					}, this.repeat );
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ sparkmodule.emit("callfunction",{}); }, 100);
+					setTimeout( function(){ particlemodule.emit("callfunction",{}); }, 100);
 				}
 			}
 			// Event Subscription
 			else if(this.method == "subscribe"){
-				var url = this.baseurl + "/v1/devices/" + this.core_id + "/events/" + this.name + "?access_token=" + this.access_token;
+				// if we're dealing with a local cloud, fallback to public firehose & ignore device ID
+				var url;
+				if(this.baseurl === "https://api.particle.io") {	// Particle.io cloud
+					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
+				} else {											// local cloud
+					url = this.baseurl + "/v1/events/" + this.name + "?access_token=" + this.access_token;
+				}
 				
 				this.es = new EventSource(url);
 			
@@ -107,10 +113,10 @@ module.exports = function(RED) {
 						raw: data,
 						payload:data.data,
 						published_at: data.published_at,
-						id: data.coreid
+						id: data.devid
 					};
 				
-					sparkmodule.send(msg);
+					particlemodule.send(msg);
 				}, false);
 
 				this.es.onerror = function(){
@@ -123,28 +129,28 @@ module.exports = function(RED) {
 				if (this.repeat && !isNaN(this.repeat) && this.repeat > 0) {
 					
 					this.interval_id = setInterval( function() {
-						sparkmodule.emit("getvariable",{});
+						particlemodule.emit("getvariable",{});
 					}, this.repeat );
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ sparkmodule.emit("getvariable",{}); }, 100);
+					setTimeout( function(){ particlemodule.emit("getvariable",{}); }, 100);
 				}
 			}
 		});
 		
-		// Call Spark Core function
+		// Call Particle Device function
 		this.on("callfunction", function(){
-			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name;
+			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name;
 			
 			console.log("Calling function...");
 			
 			console.log("URL: " + this.baseurl);
-			console.log("Core ID: " + this.core_id);
+			console.log("Core ID: " + this.dev_id);
 			console.log("Function Name: " + this.name);
 			console.log("Parameter: " + this.param);
 			
-			// Call Spark Core function
+			// Call Particle Device function
 			Request.post(
 				url, 
 				{
@@ -163,15 +169,15 @@ module.exports = function(RED) {
 							id: data.id
 						};
 						
-						sparkmodule.send(msg);
+						particlemodule.send(msg);
 					}
 				}
 			);
 		});
 		
-		// Read Spark Core variable
+		// Read Particle Device variable
 		this.on("getvariable", function(){
-			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name + "?access_token=" + this.access_token;
+			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name + "?access_token=" + this.access_token;
 			
 			console.log("Reading variable '" + this.name + "'");
 			console.log("URL '" + url + "'");
@@ -191,35 +197,35 @@ module.exports = function(RED) {
 							id: data.coreInfo.deviceID
 						};
 
-						sparkmodule.send(msg);
+						particlemodule.send(msg);
 					}
 				}
 			);
 		});
     }
 	
-	RED.nodes.registerType("SparkCore in",SparkCoreIN, {
+	RED.nodes.registerType("Particle in",ParticleIN, {
         credentials: {
-            coreid: {type:"password"},
+            devid: {type:"password"},
             accesstoken: {type: "password"}
         }
 	});
 	
 	// Node-RED Output variable
-	function SparkCoreOUT(n) {
-		var sparkmodule;
+	function ParticleOUT(n) {
+		var particlemodule;
 		
         RED.nodes.createNode(this,n);
 		
-		sparkmodule = this;
+		particlemodule = this;
 		
 		this.name = n.fve;
 		this.param = n.param;
 		this.baseurl = n.baseurl;
 		
-		// Check base URL or default to Spark Cloud URL.
+		// Check base URL or default to Particle Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
-			this.baseurl = "https://api.spark.io";
+			this.baseurl = "https://api.particle.io";
 		}
 		
 		console.log("Using base URL: " + this.baseurl);
@@ -229,15 +235,15 @@ module.exports = function(RED) {
 			this.access_token = this.credentials.accesstoken; 
 		}
         else { 
-			this.error("No Spark Core access token set"); 
+			this.error("No Particle Cloud access token set"); 
 		}
         
 		// Check Core ID
-		if ((this.credentials) && (this.credentials.hasOwnProperty("coreid"))) { 
-			this.core_id = this.credentials.coreid; 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
+			this.dev_id = this.credentials.devid; 
 		}
         else { 
-			this.error("No Spark Core device id set"); 
+			this.error("No Particle device id set"); 
 		}
 		
 		this.on("input", function(msg){
@@ -262,7 +268,7 @@ module.exports = function(RED) {
 				this.baseurl = val;
 			}
 			
-			var url = this.baseurl + "/v1/devices/" + this.core_id + "/" + this.name;
+			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name;
 			var parameter = this.param;
 			
 			if(parameter.length == 0){
@@ -278,10 +284,10 @@ module.exports = function(RED) {
 			};
 			
 			console.log("[OUT]: Calling function...");
-			console.log("[OUT]: " + this.core_id);
+			console.log("[OUT]: " + this.dev_id);
 			console.log("[OUT]: " + this.name);
 				
-			// Call Spark Core function
+			// Call Particle function
 			Request.post(
 				url, 
 				postdata,
@@ -297,21 +303,21 @@ module.exports = function(RED) {
 							name: data.name
 						};
 
-						sparkmodule.send(msg);
+						particlemodule.send(msg);
 					}
 				}
 			);
 		});
     }
 	
-	RED.nodes.registerType("SparkCore out",SparkCoreOUT, {
+	RED.nodes.registerType("Particle out",ParticleOUT, {
         credentials: {
-            coreid: {type:"password"},
+            devid: {type:"password"},
             accesstoken: {type: "password"}
         }
 	});
 	
-	SparkCoreIN.prototype.close = function() {
+	ParticleIN.prototype.close = function() {
         if (this.interval_id != null) {
 			console.log("Interval closed.");
             clearInterval(this.interval_id);
@@ -323,22 +329,22 @@ module.exports = function(RED) {
 		}
     }
 	
-	RED.httpAdmin.get('/sparkcore/:id',function(req,res) {
+	RED.httpAdmin.get('/particle/:id',function(req,res) {
 		var credentials = RED.nodes.getCredentials(req.params.id);
 
 		if (credentials) {
-			res.send(JSON.stringify({coreid:credentials.coreid,accesstoken:credentials.accesstoken}));
+			res.send(JSON.stringify({devid:credentials.devid,accesstoken:credentials.accesstoken}));
 		} else {
 			res.send(JSON.stringify({}));
 		}
 	});
 
-	RED.httpAdmin.delete('/sparkcore/:id',function(req,res) {
+	RED.httpAdmin.delete('/particle/:id',function(req,res) {
 		RED.nodes.deleteCredentials(req.params.id);
 		res.send(200);
 	});
 
-	RED.httpAdmin.post('/sparkcore/:id',function(req,res) {
+	RED.httpAdmin.post('/particle/:id',function(req,res) {
 		var body = "";
 		req.on('data', function(chunk) {
 			body+=chunk;
@@ -347,10 +353,10 @@ module.exports = function(RED) {
 		req.on('end', function(){
 			var newCreds = querystring.parse(body);
 			var credentials = RED.nodes.getCredentials(req.params.id)||{};
-			if (newCreds.coreid === null || newCreds.coreid === "") {
-				delete credentials.coreid;
+			if (newCreds.devid === null || newCreds.devid === "") {
+				delete credentials.devid;
 			} else {
-				credentials.coreid = newCreds.coreid;
+				credentials.devid = newCreds.devid;
 			}
 			if (newCreds.accesstoken === "") {
 				delete credentials.accesstoken;

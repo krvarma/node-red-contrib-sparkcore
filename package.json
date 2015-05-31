@@ -1,12 +1,12 @@
 {
-	"name": "node-red-contrib-sparkcore",
-	"version": "0.0.12",
+	"name": "node-red-contrib-particle",
+	"version": "0.0.13",
 	"repository" : {
 		"type":"git",
-		"url":"https://github.com/krvarma/node-red-contrib-sparkcore"
+		"url":"https://github.com/krvarma/node-red-contrib-particle"
 	},
-	"description": "Node-RED node to connect to Spark Core. This can be used to connect to Spark Core and call functions, read variables or listen to events",
-	"main": "sparkcore.js",
+	"description": "Node-RED node to connect to Particle.io devices. This can be used to connect to Particle.io devices and call functions, read variables or listen to Server-Sent Events (SSEs)",
+	"main": "particleio.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -17,14 +17,17 @@
 	},
 	"node-red": {
 		"nodes": {
-			"sparkcore": "sparkcore/sparkcore.js"
+			"particleio": "particleio/particleio.js"
 		}
 	},
 	"keywords": [
-		"sparkcore",
+		"particle",
+		"core",
+		"photon"
 		"node-red",
 		"iot"
 	],
 	"author": "Krishnaraj Varma <krvarma@gmail.com>",
+	"contributors": { "name" : "Chuan Khoo", "url" : "http://chuank.com" },
 	"license": "ISC"
 }

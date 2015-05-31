@@ -1,5 +1,6 @@
 <!--
   Copyright 2014 Krishnaraj Varma
+  Copyright 2015 Chuan Khoo (0.0.13) for local cloud SSE (limited) support, renaming to Particle
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,27 +15,27 @@
   limitations under the License.
 -->
 
-<script type="text/x-red" data-template-name="SparkCore in">
+<script type="text/x-red" data-template-name="Particle In">
 	<div class="form-row">
-        <label for="node-input-baseurl"><i class="icon-tag"></i>Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="Spark Cloud URL or leave blank if you are using Spark Cloud">
+        <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
+        <input type="text" id="node-input-baseurl" placeholder="leave blank if you are using the Particle.io Cloud">
     </div>
     <div class="form-row">
-        <label for="node-input-coreid"><i class="icon-tag"></i> Core ID</label>
-        <input type="password" id="node-input-coreid" placeholder="Spark Core ID">
+        <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
+        <input type="password" id="node-input-devid" placeholder="Particle Device ID">
     </div>
     <div class="form-row">
-        <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="password" id="node-input-accesstoken" placeholder="Spark Cloud Access Token">
+        <label for="node-input-accesstoken"><i class="fa fa-key"></i> Token</label>
+        <input type="password" id="node-input-accesstoken" placeholder="Particle Cloud Access Token">
     </div>
 	<br/>
 	<div class="form-row">
         <label for="node-input-method"><i class="fa fa-tasks"></i> Method</label>
-        <select type="text" id="node-input-method" style="width:72%;">
+        <select type="text" id="node-input-method" style="width:73%;">
 			<option value="readmsg">msg.operation</option>
 			<option value="function">Call a function</option>
 			<option value="variable">Read a Variable</option>
-			<option value="subscribe">Subscribe to Event</option>
+			<option value="subscribe">Subscribe to Event (SSE)</option>
         </select>
     </div>
 	<div class="form-row">
@@ -47,15 +48,15 @@
     </div>
 	<br/>
 	<div class="form-row">
-        <label for="node-input-repeat"><i class="icon-tag"></i> Repeat</label>
+        <label for="node-input-repeat"><i class="fa fa-repeat"></i> Repeat</label>
         <input type="text" id="node-input-repeat" placeholder="msg.repeat">
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="SparkCore in">
-    <p><b>Spark Core Input</b></p>
+<script type="text/x-red" data-help-name="Particle in">
+    <p><b>Particle Device Input</b></p>
 	<p>
-    <p>This node allows you to call a Spark Core function, read a variable or listen for incoming events.</p>
+    <p>This node allows you to call a Particle Device function, read a variable or listen for incoming events.</p>
 	<p><i>Usage</i></p>
 	<p/>
 	<p><b>Call a function</b></p>
@@ -68,28 +69,29 @@
 	<p/>
 	<p><b>Subscribe to SSE</b></p>
 	<p>Select <i>Subscribe to Events</i> from the Method dropdown list. Enter name of the SSE in Name editbox.<p>
+    <p>Note that for local clouds, device-specific and device-and-event specific events are currently <strong>not</strong> supported. In this scenario the Device ID will be ignored and you will get the public event firehose as specified in the <strong>Name</strong> field.</p>
 	<p>The <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the event data, <b>msg.id</b> contains the core id and <b>msg.published_at</b> contains the published date and time.
-    <p>For further info see the <a href="https://spark.io/" target="_new">Spark website</a>.</p>
+    <p>For further info see the <a href="https://particle.io/" target="_new">Particle website</a>.</p>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('SparkCore in',{
-        category: 'Spark Core',
+    RED.nodes.registerType('Particle in',{
+        category: 'Particle',
         defaults: {
-			baseurl: {value:"https://api.spark.io"},
+			baseurl: {value:"https://api.particle.io"},
 			method: {value:"readmsg"},
 			fve: {value:""},
 			param: {value:""},
 			repeat: {value:0}
         },
 		credentials: {
-            coreid: {type:"password"},
+            devid: {type:"password"},
             accesstoken: {type: "password"}
         },
         color:"#00ACED",
         inputs:1,
         outputs:1,
-        icon: "spark.png",
+        icon: "particle.png",
         label: function() {
             return this.name|| this.method + " - " + this.fve;
         },
@@ -97,10 +99,10 @@
             return this.name?"node_label_italic":"";
         },
 		oneditprepare: function() {
-            $.getJSON('sparkcore/'+this.id,function(data) {
+            $.getJSON('particle/'+this.id,function(data) {
 				console.log(data);
-                if (data.coreid) {
-                    $('#node-input-coreid').val(data.coreid);
+                if (data.devid) {
+                    $('#node-input-devid').val(data.devid);
                 }
                 if (data.accesstoken) {
                     $('#node-input-accesstoken').val(data.accesstoken);
@@ -109,16 +111,16 @@
         },
 		oneditsave: function() {
             var credentials = {};
-            var newCoreId = $('#node-input-coreid').val();
+            var newDevId = $('#node-input-devid').val();
             var newToken = $('#node-input-accesstoken').val();
             
-			credentials.coreid = newCoreId;
+			credentials.devid = newDevId;
             credentials.accesstoken = newToken;
 			
 			console.log(credentials);
 
             $.ajax({
-                url: 'sparkcore/'+this.id,
+                url: 'particle/'+this.id,
                 type: 'POST',
                 data: credentials,
                 success: function(result){}
@@ -126,7 +128,7 @@
         },
         ondelete: function() {
             $.ajax({
-                url: 'sparkcore/'+this.id,
+                url: 'particle/'+this.id,
                 type: 'DELETE',
                 success: function(result) {}
             });
@@ -134,18 +136,18 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="SparkCore out">
+<script type="text/x-red" data-template-name="Particle out">
 	<div class="form-row">
-        <label for="node-input-baseurl"><i class="icon-tag"></i>Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="Spark Cloud URL, leave blank if you are using Spark Cloud">
+        <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
+        <input type="text" id="node-input-baseurl" placeholder="leave blank if you are using the Particle.io Cloud">
     </div>
     <div class="form-row">
-        <label for="node-input-coreid"><i class="icon-flag"></i> Core ID</label>
-        <input type="password" id="node-input-coreid" placeholder="Spark Core ID">
+        <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
+        <input type="password" id="node-input-devid" placeholder="Particle Device ID">
     </div>
     <div class="form-row">
-        <label for="node-input-accesstoken"><i class="icon-tag"></i> Token</label>
-        <input type="password" id="node-input-accesstoken" placeholder="Spark Cloud Access Token">
+        <label for="node-input-accesstoken"><i class="fa fa-key"></i> Token</label>
+        <input type="password" id="node-input-accesstoken" placeholder="Particle Cloud Access Token">
     </div>
 	<br/>
 	<div class="form-row">
@@ -158,34 +160,34 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="SparkCore out">
-    <p><b>Spark Core Output</b></p>
+<script type="text/x-red" data-help-name="Particle out">
+    <p><b>Particle Device Output</b></p>
 	<p>
-    <p>This node allows you to call a Spark Core function.</p>
+    <p>This node allows you to call a Particle Device function.</p>
 	<p><i>Usage</i></p>
 	<p/>
 	<p><b>Call a function</b></p>
 	<p>Select <i>Call a function</i> from the Method dropdown list. Enter name of the function in Name editbox and enter Parameter value if any.<p>
 	<p>The <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the return value of the function, <b>msg.id</b> contains the core id, <b>msg.name</b> contains the name of the core.
 	<p/>
-    <p>For further info see the <a href="https://spark.io/" target="_new">Spark website</a>.</p>
+    <p>For further info see the <a href="https://particle.io/" target="_new">Particle website</a>.</p>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('SparkCore out',{
-        category: 'Spark Core',
+    RED.nodes.registerType('Particle out',{
+        category: 'Particle',
         defaults: {
-			baseurl: {value:"https://api.spark.io"},
+			baseurl: {value:"https://api.particle.io"},
 			fve: {value:""},
 			param: {value:""}
         },
 		credentials: {
-            coreid: {type:"password"},
+            devid: {type:"password"},
             accesstoken: {type: "password"}
         },
         color:"#00ACED",
         inputs:1,
         outputs:1,
-        icon: "spark.png",
+        icon: "particle.png",
         label: function() {
             return this.name||"function" + " - " + (this.fve || "dynamic");
         },
@@ -193,9 +195,9 @@
             return this.name?"node_label_italic":"";
         },
 		oneditprepare: function() {
-            $.getJSON('sparkcore/'+this.id,function(data) {
-                if (data.coreid) {
-                    $('#node-input-coreid').val(data.coreid);
+            $.getJSON('particle/'+this.id,function(data) {
+                if (data.devid) {
+                    $('#node-input-devid').val(data.devid);
                 }
                 if (data.accesstoken) {
                     $('#node-input-accesstoken').val(data.accesstoken);
@@ -204,14 +206,14 @@
         },
 		oneditsave: function() {
             var credentials = {};
-            var newCoreId = $('#node-input-coreid').val();
+            var newDevId = $('#node-input-devid').val();
             var newToken = $('#node-input-accesstoken').val();
 
-            credentials.coreid = newCoreId;
+            credentials.devid = newDevId;
 			credentials.accesstoken = newToken;
 
             $.ajax({
-                url: 'sparkcore/'+this.id,
+                url: 'particle/'+this.id,
                 type: 'POST',
                 data: credentials,
                 success: function(result){}
@@ -219,7 +221,7 @@
         },
         ondelete: function() {
             $.ajax({
-                url: 'sparkcore/'+this.id,
+                url: 'particle/'+this.id,
                 type: 'DELETE',
                 success: function(result) {}
             });
