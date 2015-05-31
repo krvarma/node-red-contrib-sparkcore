@@ -29,7 +29,7 @@ module.exports = function(RED) {
 			this.access_token = this.credentials.accesstoken; 
 		}
         else { 
-			this.error("No Particle Core access token set"); 
+			this.error("No Particle access token set"); 
 		}
         
 		// Check device id
@@ -38,8 +38,8 @@ module.exports = function(RED) {
 		}
         else {
         	// no devid set; check if user has setup a local cloud
-        	if(this.baseurl === "https://api.particle.io") {
-				this.error("No Particle Core device id set"); 
+        	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
+				this.error("No Particle Device id set");
         	} else {
         		// ignore as due to partial local cloud SSE support (public firehose)
 				this.dev_id = "";
@@ -127,7 +127,7 @@ module.exports = function(RED) {
 				}, false);
 
 				this.es.onerror = function(){
-					console.log('ES Error');
+					console.log('Particle ES Error');
 				};
 			}
 			// Read variable
@@ -153,7 +153,7 @@ module.exports = function(RED) {
 			console.log("Calling function...");
 			
 			console.log("URL: " + this.baseurl);
-			console.log("Core ID: " + this.dev_id);
+			console.log("Device ID: " + this.dev_id);
 			console.log("Function Name: " + this.name);
 			console.log("Parameter: " + this.param);
 			
@@ -245,12 +245,18 @@ module.exports = function(RED) {
 			this.error("No Particle Cloud access token set"); 
 		}
         
-		// Check Core ID
+		// Check Device ID
 		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
 			this.dev_id = this.credentials.devid; 
 		}
         else { 
-			this.error("No Particle device id set"); 
+        	// no devid set; check if user has setup a local cloud
+        	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
+				this.error("No Particle Device id set");
+        	} else {
+        		// ignore as due to partial local cloud SSE support (public firehose)
+				this.dev_id = "";
+        	}
 		}
 		
 		this.on("input", function(msg){
