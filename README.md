@@ -1,12 +1,12 @@
-node-red-contrib-particleio
----------------------------
+node-red-contrib-particle
+-------------------------
 
 Node-RED node to connect to [Particle Devices](https://www.particle.io/). This can be used to connect to the Particle Core/Photon, and call functions, read variables or listen to Server-Sent-Events (SSEs).
 
 Install
 -------
 
-    npm install node-red-contrib-particleio
+    npm install node-red-contrib-particle
 
 Usage
 -----
