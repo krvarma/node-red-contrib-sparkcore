@@ -36,8 +36,14 @@ module.exports = function(RED) {
 		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
 			this.dev_id = this.credentials.devid; 
 		}
-        else { 
-			this.error("No Particle Core device id set"); 
+        else {
+        	// no devid set; check if user has setup a local cloud
+        	if(this.baseurl === "https://api.particle.io") {
+				this.error("No Particle Core device id set"); 
+        	} else {
+        		// ignore as due to partial local cloud SSE support (public firehose)
+				this.dev_id = "";
+        	}
 		}
 		
 		setTimeout( function(){ particlemodule.emit("process",{}); }, 100);
