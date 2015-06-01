@@ -95,7 +95,7 @@ module.exports = function(RED) {
 
         
 		// Check device id
-		if (this.credentials && (this.credentials.hasOwnProperty("devid")) {
+		if (this.credentials && this.credentials.hasOwnProperty("devid")) {
 			this.dev_id = this.credentials.devid; 
 		}
         else {
