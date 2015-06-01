@@ -24,7 +24,7 @@ module.exports = function(RED) {
 	// Configuration module
     function ParticleCloudNode(n) {
         RED.nodes.createNode(this,n);
-        this.hostname = n.hostname;
+        this.baseurl = n.baseurl;
         this.port = n.port;
         this.name = n.name;
 
@@ -32,11 +32,13 @@ module.exports = function(RED) {
 			this.accesstoken = this.credentials.accesstoken; 
 		}
 
-		if(this.hostname === null || this.hostname === ''){
+		if(this.baseurl === null || this.baseurl === ''){
 			this.baseurl = "https://api.particle.io";
 		} else {
-			this.baseurl = this.hostname + ":" + this.port;
+			this.baseurl += ":" + this.port;
 		}
+
+		console.log("particleconfig: " + this.credentials);
     }
 
     RED.nodes.registerType("particle-cloud",ParticleCloudNode, {
@@ -63,7 +65,7 @@ module.exports = function(RED) {
 		this.name = n.fve;
 		this.param = n.param;
 		this.method = n.method;
-		this.baseurl = n.baseurl;
+		this.baseurl = n.host;
 		this.timeoutDelay = 100;
 		
 		// Check base URL or default to Particle Cloud URL.
@@ -178,6 +180,7 @@ module.exports = function(RED) {
 					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
 				}
 
+				console.log("ES attempt to: " + url);
 				this.es = new EventSource(url);
 			
 				// Add EventSource Listener

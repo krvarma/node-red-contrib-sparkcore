@@ -19,8 +19,8 @@
 // Particle CONFIGURATION node
 <script type="text/x-red" data-template-name="particle-cloud">
     <div class="form-row">
-        <label for="node-config-input-hostname"><i class="fa fa-server"></i> Cloud URL</label>
-        <input class="input-append-left" type="text" id="node-config-input-hostname" placeholder="IP or hostname" style="width:40%;">
+        <label for="node-config-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
+        <input class="input-append-left" type="text" id="node-config-input-baseurl" placeholder="IP or hostname" style="width:40%;">
         <label for="node-config-input-port" style="margin-left: 10px; width: 35px; "> Port</label>
         <input type="text" id="node-config-input-port" placeholder="8080" style="width:45px">
     </div>
@@ -38,7 +38,7 @@
     RED.nodes.registerType('particle-cloud',{
         category: 'config',
         defaults: {
-            hostname: {value:"https://api.particle.io",required:true},
+            baseurl: {value:"https://api.particle.io",required:true},
             port: {value:443,required:true,validate:RED.validators.number()},
             accesstoken: {value:"",required:true},
             name: {value:""}
@@ -47,20 +47,19 @@
             accesstoken: {type: "password"}
         },
         label: function() {
-            return this.name || this.hostname + ":" + this.port;
+            return this.name || this.baseurl + ":" + this.port;
         },
         oneditprepare: function() {
-            console.log("IDtrace: " + this.id);
             $.getJSON('particlecloud/'+this.id,function(data) {
                 console.log(data);
                 if (data.accesstoken) {
-                    $('#node-input-accesstoken').val(data.accesstoken);
+                    $('#node-config-input-accesstoken').val(data.accesstoken);
                 }
             });
         },
         oneditsave: function() {
             var credentials = {};
-            var newToken = $('#node-input-accesstoken').val();
+            var newToken = $('#node-config-input-accesstoken').val();
             
             credentials.accesstoken = newToken;
             
@@ -87,8 +86,8 @@
 // Particle IN node
 <script type="text/x-red" data-template-name="Particle in">
 	<div class="form-row">
-        <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="leave blank if using the Particle.io Cloud">
+        <label for="node-input-host"><i class="fa fa-server"></i> Cloud URL</label>
+        <input type="text" id="node-input-host">
     </div>
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
@@ -162,7 +161,6 @@
 */
 		credentials: {
             devid: {type:"password"}
-//            accesstoken: {type: "password"}
         },
         color:"#00ACED",
         inputs:1,
@@ -179,17 +177,11 @@
             return this.name?"node_label_italic":"";
         },
 		oneditprepare: function() {
-            console.log("IDtrace: " + this.id);
             $.getJSON('particle/'+this.id,function(data) {
 				console.log(data);
                 if (data.devid) {
                     $('#node-input-devid').val(data.devid);
                 }
-                /*
-                if (data.accesstoken) {
-                    $('#node-input-accesstoken').val(data.accesstoken);
-                }
-                */
             });
         },
 		oneditsave: function() {
@@ -222,8 +214,8 @@
 // Particle OUT node
 <script type="text/x-red" data-template-name="Particle out">
 	<div class="form-row">
-        <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
-        <input type="text" id="node-input-baseurl" placeholder="leave blank if you are using the Particle.io Cloud">
+        <label for="node-input-host"><i class="fa fa-server"></i> Cloud URL</label>
+        <input type="text" id="node-input-host">
     </div>
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
@@ -260,7 +252,7 @@
     RED.nodes.registerType('Particle out',{
         category: 'Particle',
         defaults: {
-			baseurl: {value:"https://api.particle.io"},
+			host: {value:"", type:"particle-cloud"},
 			fve: {value:""},
 			param: {value:""}
         },
