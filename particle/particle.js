@@ -1,6 +1,9 @@
 /*
-  Copyright 2014 Krishnaraj Varma
-  Copyright 2015 Chuan Khoo (post-0.0.12) for local cloud SSE (limited) support, renaming to Particle, configuration node implementation
+  Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
+  Copyright 2015 Chuan Khoo (node-red-contrib-particle 0.0.1), including:
+        local cloud SSE (limited) support
+        renaming to Particle
+        configuration node implementation
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.

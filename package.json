@@ -28,7 +28,6 @@
 		"iot",
 		"spark"
 	],
-	"author": "Krishnaraj Varma <krvarma@gmail.com>",
-	"contributors": { "name" : "Chuan Khoo", "email":"khoo.chuan@gmail.com", "url" : "http://chuank.com" },
+	"author": "Chuan Khoo <khoo.chuan@gmail.com>",
 	"license": "ISC"
 }
