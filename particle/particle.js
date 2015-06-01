@@ -54,6 +54,7 @@ module.exports = function(RED) {
 		// note: code here runs when flow is re-deployed. n object refers to a node's instance configuration and so is unique between nodes
 		
 		// Get all properties
+		this.config = n.config;
         this.interval_id = null;
 		this.repeat = n.repeat * 1000;
 		this.name = n.fve;
@@ -71,8 +72,8 @@ module.exports = function(RED) {
 
 
 		// Check cloud access token
-		if (RED.nodes.getNode(config.baseurl)) {
-			this.access_token = RED.nodes.getNode(config.baseurl);
+		if (RED.nodes.getNode(this.config.baseurl)) {
+			this.access_token = RED.nodes.getNode(this.config.baseurl);
 			this.status({});
 		}
         else { 
