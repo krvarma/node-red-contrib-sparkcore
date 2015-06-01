@@ -48,7 +48,7 @@
         },
         label: function() {
             return this.name || this.hostname + ":" + this.port;
-        }
+        },
         oneditprepare: function() {
             console.log("IDtrace: " + this.id);
             $.getJSON('particlecloud/'+this.id,function(data) {
