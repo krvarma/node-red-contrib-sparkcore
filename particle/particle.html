@@ -49,6 +49,37 @@
         label: function() {
             return this.name || this.hostname + ":" + this.port;
         }
+        oneditprepare: function() {
+            console.log("IDtrace: " + this.id);
+            $.getJSON('particlecloud/'+this.id,function(data) {
+                console.log(data);
+                if (data.accesstoken) {
+                    $('#node-input-accesstoken').val(data.accesstoken);
+                }
+            });
+        },
+        oneditsave: function() {
+            var credentials = {};
+            var newToken = $('#node-input-accesstoken').val();
+            
+            credentials.accesstoken = newToken;
+            
+            console.log(credentials);
+
+            $.ajax({
+                url: 'particlecloud/'+this.id,
+                type: 'POST',
+                data: credentials,
+                success: function(result){}
+            });
+        },
+        ondelete: function() {
+            $.ajax({
+                url: 'particlecloud/'+this.id,
+                type: 'DELETE',
+                success: function(result) {}
+            });
+        }        
     });
 </script>
 
@@ -62,10 +93,6 @@
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
         <input type="password" id="node-input-devid" placeholder="leave blank for firehose/local Cloud SSE">
-    </div>
-    <div class="form-row">
-        <label for="node-input-accesstoken"><i class="fa fa-key"></i> Token</label>
-        <input type="password" id="node-input-accesstoken" placeholder="Particle Cloud Access Token">
     </div>
 	<br/>
 	<div class="form-row">
@@ -152,23 +179,26 @@
             return this.name?"node_label_italic":"";
         },
 		oneditprepare: function() {
+            console.log("IDtrace: " + this.id);
             $.getJSON('particle/'+this.id,function(data) {
 				console.log(data);
                 if (data.devid) {
                     $('#node-input-devid').val(data.devid);
                 }
+                /*
                 if (data.accesstoken) {
                     $('#node-input-accesstoken').val(data.accesstoken);
                 }
+                */
             });
         },
 		oneditsave: function() {
             var credentials = {};
             var newDevId = $('#node-input-devid').val();
-            var newToken = $('#node-input-accesstoken').val();
+            //var newToken = $('#node-input-accesstoken').val();
             
 			credentials.devid = newDevId;
-            credentials.accesstoken = newToken;
+            //credentials.accesstoken = newToken;
 			
 			console.log(credentials);
 
@@ -258,18 +288,20 @@
                 if (data.devid) {
                     $('#node-input-devid').val(data.devid);
                 }
+                /*
                 if (data.accesstoken) {
                     $('#node-input-accesstoken').val(data.accesstoken);
                 }
+                */
             });
         },
 		oneditsave: function() {
             var credentials = {};
             var newDevId = $('#node-input-devid').val();
-            var newToken = $('#node-input-accesstoken').val();
+            //var newToken = $('#node-input-accesstoken').val();
 
             credentials.devid = newDevId;
-			credentials.accesstoken = newToken;
+			//credentials.accesstoken = newToken;
 
             $.ajax({
                 url: 'particle/'+this.id,
