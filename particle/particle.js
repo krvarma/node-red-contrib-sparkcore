@@ -135,12 +135,12 @@ module.exports = function(RED) {
 				}, false);
 
 				this.es.onopen = function(){
-					this.status({fill:"green",shape:"dot",text:"SSE Connected"});
+					particlemodule.status({fill:"green",shape:"dot",text:"SSE Connected"});
 					console.log('(Particle IN) SSE Connected');
 				};
 
 				this.es.onerror = function(){
-					this.status({fill:"red",shape:"ring",text:"SSE Error"});
+					particlemodule.status({fill:"red",shape:"ring",text:"SSE Error"});
 					console.log('(Particle IN) SSE Error');
 				};
 			}
