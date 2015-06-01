@@ -35,7 +35,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('particle-cloud',{
+    RED.nodes.registerType('particle-cloud',ParticleCloudNode,{
         category: 'config',
         defaults: {
             hostname: {value:"https://api.particle.io",required:true},
