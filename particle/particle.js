@@ -24,7 +24,7 @@ module.exports = function(RED) {
 	// Configuration module
     function ParticleCloudNode(n) {
         RED.nodes.createNode(this,n);
-        this.baseurl = n.baseurl;
+        this.host = n.host;
         this.port = n.port;
         this.name = n.name;
 
@@ -32,13 +32,6 @@ module.exports = function(RED) {
 			this.accesstoken = this.credentials.accesstoken; 
 		}
 
-		if(this.baseurl === null || this.baseurl === ''){
-			this.baseurl = "https://api.particle.io";
-		} else {
-			this.baseurl += ":" + this.port;
-		}
-
-		console.log("particleconfig: " + this.credentials);
     }
 
     RED.nodes.registerType("particle-cloud",ParticleCloudNode, {
@@ -46,7 +39,6 @@ module.exports = function(RED) {
 			accesstoken: {type:"password"}
 		}
  	});
-
 
 	// Node-RED Input Module - base module for connecting to a Particle Cloud
     function ParticleIN(n) {
@@ -65,47 +57,26 @@ module.exports = function(RED) {
 		this.name = n.fve;
 		this.param = n.param;
 		this.method = n.method;
-		this.baseurl = n.host;
+		this.baseurl = RED.nodes.getNode(n.baseurl);
 		this.timeoutDelay = 100;
-		
-		// Check base URL or default to Particle Cloud URL.
-		if(this.baseurl === null || this.baseurl === ''){
-			this.baseurl = "https://api.particle.io";
-		}
-		(this.baseurl === "https://api.particle.io") ? this.isLocal = false : this.isLocal = true;
-		console.log("(Particle IN) local cloud: " + this.isLocal);
 
-		/*
-		// Check cloud access token
-		if (RED.nodes.getNode(this.config.baseurl)) {
-			this.access_token = RED.nodes.getNode(this.config.baseurl);
+		console.log("(Particle IN) local cloud: " + Object.keys(this.baseurl));
+		console.log("(Particle IN) local cloud: " + this.baseurl.accesstoken);
+
+		(this.baseurl.host === "https://api.particle.io") ? this.isLocal = false : this.isLocal = true;
+
+		if(this.baseurl.accesstoken === null || this.baseurl.accesstoken === '') {
+			this.status({fill:"red",shape:"dot",text:""});
+			this.error("No Particle access token in configuration node");
+		} else {
 			this.status({});
 		}
-        else { 
-			this.status({fill:"red",shape:"dot",text:""});
-			this.error("No Particle access token set");
-		}
-		*/
-
-		/*
-		// Check cloud access token
-		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
-			this.access_token = this.credentials.accesstoken;
-			this.status({});
-		}
-        else { 
-			this.status({fill:"red",shape:"dot",text:""});
-			this.error("No Particle access token set");
-		}
-		*/
         
 		// Check device id
-		//if (this.credentials && this.credentials.hasOwnProperty("devid"))
 		if((this.credentials) && (this.credentials.hasOwnProperty("devid"))) {
 			this.dev_id = this.credentials.devid;
 			this.status({});
-		}
-        else {
+		} else {
         	// no device id set; check if user has setup a local cloud
         	if(this.method !== "subscribe" && !this.isLocal) {
         		this.status({fill:"yellow",shape:"dot",text:""});
@@ -175,9 +146,9 @@ module.exports = function(RED) {
 				// if we're dealing with a local cloud, or if device ID is empty, fallback to public/event firehose & ignore device ID
 				var url;
 				if(this.isLocal || !this.dev_id) {
-					url = this.baseurl + "/v1/events/" + this.name + "?access_token=" + this.access_token;
+					url = this.baseurl.host + ":" + this.baseurl.port + "/v1/events/" + this.name + "?access_token=" + this.baseurl.accesstoken;
 				} else {
-					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
+					url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.baseurl.accesstoken;
 				}
 
 				console.log("ES attempt to: " + url);
@@ -228,7 +199,7 @@ module.exports = function(RED) {
 		this.on("callfunction", function(){
 			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name;
 			
-			console.log("Calling function...");
+			console.log("(Particle IN) Calling function...");
 			
 			console.log("URL: " + this.baseurl);
 			console.log("Device ID: " + this.dev_id);
@@ -264,15 +235,15 @@ module.exports = function(RED) {
 		this.on("getvariable", function(){
 			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name + "?access_token=" + this.access_token;
 			
-			console.log("Reading variable '" + this.name + "'");
+			console.log("(Particle IN) Reading variable '" + this.name + "'");
 			console.log("URL '" + url + "'");
 			
 			// Read Particle device variable
 			Request.get(url,
 				function (error, response, body){
-					console.log(body);
+					console.log("(Particle IN) get variable: " + body);
 					
-					// If not error then prepare message and send
+					// If no error then prepare message and send to outlet
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
 						
@@ -306,37 +277,30 @@ module.exports = function(RED) {
 		
 		this.name = n.fve;
 		this.param = n.param;
-		this.baseurl = n.baseurl;
-		
-		// Check base URL or default to Particle Cloud URL.
-		if(this.baseurl === null || this.baseurl === ''){
-			this.baseurl = "https://api.particle.io";
+		this.baseurl = RED.nodes.getNode(n.baseurl);		
+
+		console.log("(Particle OUT) local cloud: " + Object.keys(this.baseurl));
+		console.log("(Particle OUT) local cloud: " + this.baseurl.accesstoken);
+
+		(this.baseurl.host === "https://api.particle.io") ? this.isLocal = false : this.isLocal = true;
+
+		if(this.baseurl.accesstoken === null || this.baseurl.accesstoken === '') {
+			this.status({fill:"red",shape:"dot",text:""});
+			this.error("No Particle access token in configuration node");
+		} else {
+			this.status({});
 		}
-		
-		console.log("Using base URL: " + this.baseurl);
-		
-		// Check access token
-		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
-			this.access_token = this.credentials.accesstoken; 
-		}
-        else { 
-			this.error("No Particle Cloud access token set"); 
-		}
-        
+
 		// Check Device ID
-		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
-			this.dev_id = this.credentials.devid; 
+		if((this.credentials) && (this.credentials.hasOwnProperty("devid"))) {
+			this.dev_id = this.credentials.devid;
+			this.status({});
+		} else {
+        	// no device id set; check if user has setup a local cloud
+    		this.status({fill:"red",shape:"dot",text:""});
+			this.error("No Particle Device ID set");
 		}
-        else { 
-        	// no devid set; check if user has setup a local cloud
-        	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
-				this.error("No Particle Device ID set");
-        	} else {
-        		// ignore as due to partial local cloud SSE support (public firehose)
-				this.dev_id = "";
-        	}
-		}
-		
+
 		this.on("input", function(msg){
 			var val = msg.name;
 			
@@ -359,7 +323,9 @@ module.exports = function(RED) {
 				this.baseurl = val;
 			}
 			
-			var url = this.baseurl + "/v1/devices/" + this.dev_id + "/" + this.name;
+			var url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.dev_id + "/" + this.name;
+			console.log("(Particle OUT) using URL: " + url);
+
 			var parameter = this.param;
 			
 			if(parameter.length == 0){
@@ -369,21 +335,21 @@ module.exports = function(RED) {
 			// Prepare Post Data
 			var postdata = {
 				form: {
-					access_token: this.access_token,
+					access_token: this.baseurl.accesstoken,
 					args: parameter
 				}
 			};
 			
-			console.log("[OUT]: Calling function...");
-			console.log("[OUT]: " + this.dev_id);
-			console.log("[OUT]: " + this.name);
+			console.log("(Particle OUT) Calling function...");
+			console.log(this.dev_id);
+			console.log(this.name);
 				
 			// Call Particle function
 			Request.post(
 				url, 
 				postdata,
 				function (error, response, body){
-					// If not error, send to Node-RED
+					// If no error, send to Node-RED
 					if(!error && response.statusCode == 200){
 						var data = JSON.parse(body);
 						
@@ -457,6 +423,8 @@ module.exports = function(RED) {
 	RED.httpAdmin.get('/particlecloud/:id',function(req,res) {
 		var credentials = RED.nodes.getCredentials(req.params.id);
 
+		console.log("particleCloud getCredentials: " + credentials);
+
 		if (credentials) {
 			res.send(JSON.stringify({accesstoken:credentials.accesstoken}));
 		} else {
@@ -478,6 +446,9 @@ module.exports = function(RED) {
 		req.on('end', function(){
 			var newCreds = querystring.parse(body);
 			var credentials = RED.nodes.getCredentials(req.params.id)||{};
+
+			console.log("particleCloud postCredentials: " + credentials);
+
 			if (newCreds.accesstoken === "") {
 				delete credentials.accesstoken;
 			} else {
