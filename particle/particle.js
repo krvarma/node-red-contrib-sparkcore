@@ -10,6 +10,8 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
 		
 		particlemodule = this;
+
+		// note: code here runs when flow is re-deployed. n object refers to a node's instance configuration and so is unique between nodes
 		
 		// Get all properties
         this.interval_id = null;
@@ -19,33 +21,33 @@ module.exports = function(RED) {
 		this.method = n.method;
 		this.baseurl = n.baseurl;
 		this.timeoutDelay = 100;
-	
-		console.log("IN: initialising!");
-
+		
 		// Check base URL or default to Particle Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
 			this.baseurl = "https://api.particle.io";
 		}
+		(this.baseurl === "https://api.particle.io") ? this.isLocal = false : this.isLocal = true;
+		console.log("(Particle IN) local cloud: " + this.isLocal);
 
-		// Check access token
+		// Check cloud access token
 		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
-			this.access_token = this.credentials.accesstoken; 
+			this.access_token = this.credentials.accesstoken;
 			this.status({});
 		}
         else { 
 			this.status({fill:"red",shape:"dot",text:""});
-			this.error("No Particle access token set"); 
+			this.error("No Particle access token set");
 		}
         
 		// Check device id
-		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) { 
+		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) {
 			this.dev_id = this.credentials.devid; 
 		}
         else {
-        	// no devid set; check if user has setup a local cloud
-        	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
+        	// no device id set; check if user has setup a local cloud
+        	if(this.method !== "subscribe" && !this.isLocal) {
         		this.status({fill:"yellow",shape:"dot",text:""});
-				this.error("No Particle Device id set");
+				this.error("No Particle Device ID set");
         	} else {
         		// ignore, due to partial local cloud SSE support (public firehose)
 				this.dev_id = "";
@@ -94,7 +96,7 @@ module.exports = function(RED) {
 			if(this.method == "function"){
 				// Check for repeat and start timer
 				if (this.repeat && !isNaN(this.repeat) && this.repeat > 0) {
-					console.log("Repeat = "+this.repeat);
+					console.log("(Particle IN) Repeat = "+this.repeat);
 					
 					this.interval_id = setInterval( function() {
 						particlemodule.emit("callfunction",{});
@@ -108,18 +110,17 @@ module.exports = function(RED) {
 
 			// SSE (Server-Sent-Event) Subscription
 			else if(this.method == "subscribe"){
-				// if we're dealing with a local cloud, fallback to public firehose & ignore device ID
+				// if we're dealing with a local cloud, or if device ID is empty, fallback to public/event firehose & ignore device ID
 				var url;
-				if(this.baseurl === "https://api.particle.io") {	// Particle.io cloud
-					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
-				} else {											// local cloud
+				if(ifLocal || !this.dev_id) {
 					url = this.baseurl + "/v1/events/" + this.name + "?access_token=" + this.access_token;
-					console.log("local cloud detected, public firehose only!");
+				} else {
+					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
 				}
-				
+
 				this.es = new EventSource(url);
 			
-				// Add Event Listener
+				// Add EventSource Listener
 				this.es.addEventListener(this.name, function(e){
 					var data = JSON.parse(e.data);
 				
@@ -127,16 +128,17 @@ module.exports = function(RED) {
 						raw: data,
 						payload:data.data,
 						published_at: data.published_at,
-						id: data.coreid				// TODO: currently spark-server still uses coreid as property name
+						id: data.coreid						// TODO: currently spark-server still uses coreid as property name
 					};
 				
 					particlemodule.send(msg);
 				}, false);
 
 				this.es.onerror = function(){
-					console.log('Particle ES Error');
+					console.log('(Particle IN) ES Error');
 				};
 			}
+
 			// Read variable
 			else if(this.method == "variable"){
 				// Check for repeat and start timer
@@ -218,7 +220,7 @@ module.exports = function(RED) {
 		});
     }
 	
-	RED.nodes.registerType("Particle in",ParticleIN, {
+	RED.nodes.registerType("Particle IN",ParticleIN, {
         credentials: {
             devid: {type:"password"},
             accesstoken: {type: "password"}
@@ -260,7 +262,7 @@ module.exports = function(RED) {
         else { 
         	// no devid set; check if user has setup a local cloud
         	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
-				this.error("No Particle Device id set");
+				this.error("No Particle Device ID set");
         	} else {
         		// ignore as due to partial local cloud SSE support (public firehose)
 				this.dev_id = "";
@@ -331,7 +333,7 @@ module.exports = function(RED) {
 		});
     }
 	
-	RED.nodes.registerType("Particle out",ParticleOUT, {
+	RED.nodes.registerType("Particle OUT",ParticleOUT, {
         credentials: {
             devid: {type:"password"},
             accesstoken: {type: "password"}
