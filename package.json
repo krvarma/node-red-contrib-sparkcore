@@ -1,11 +1,11 @@
 {
 	"name": "node-red-contrib-particle",
-	"version": "0.0.13",
+	"version": "0.0.1",
 	"repository" : {
 		"type":"git",
 		"url":"https://github.com/chuank/node-red-contrib-particle"
 	},
-	"description": "Node-RED node to connect to Particle devices. This can be used to call functions, read variables or listen to Server-Sent Events (SSEs)",
+	"description": "Node-RED node to connect to Particle devices. Used to call functions, read variables or listen to Server-Sent Events (SSEs)",
 	"main": "particle.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"

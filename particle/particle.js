@@ -1,8 +1,48 @@
+/*
+  Copyright 2014 Krishnaraj Varma
+  Copyright 2015 Chuan Khoo (post-0.0.12) for local cloud SSE (limited) support, renaming to Particle, configuration node implementation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
 var EventSource = require('eventsource');
 var Request = require("request");
 var querystring = require('querystring');
 
 module.exports = function(RED) {
+
+	// Configuration module
+    function ParticleCloudNode(n) {
+        RED.nodes.createNode(this,n);
+        this.hostname = n.hostname;
+        this.port = n.port;
+        this.name = n.name;
+
+		if (this.credentials && this.credentials.hasOwnProperty("accesstoken") ) {
+			this.accesstoken = this.credentials.accesstoken; 
+		}
+
+		if(this.hostname === null || this.hostname === ''){
+			this.baseurl = "https://api.particle.io";
+		} else {
+			this.baseurl = this.hostname + ":" + this.port;
+		}
+    }
+
+    RED.nodes.registerType("particle-cloud",ParticleCloudNode);
+
+
+
 	// Node-RED Input Module - base module for connecting to a Particle Cloud
     function ParticleIN(n) {
 		var particlemodule = null;
@@ -29,6 +69,18 @@ module.exports = function(RED) {
 		(this.baseurl === "https://api.particle.io") ? this.isLocal = false : this.isLocal = true;
 		console.log("(Particle IN) local cloud: " + this.isLocal);
 
+
+		// Check cloud access token
+		if (RED.nodes.getNode(config.baseurl)) {
+			this.access_token = RED.nodes.getNode(config.baseurl);
+			this.status({});
+		}
+        else { 
+			this.status({fill:"red",shape:"dot",text:""});
+			this.error("No Particle access token set");
+		}
+
+		/*
 		// Check cloud access token
 		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
 			this.access_token = this.credentials.accesstoken;
@@ -38,6 +90,8 @@ module.exports = function(RED) {
 			this.status({fill:"red",shape:"dot",text:""});
 			this.error("No Particle access token set");
 		}
+		*/
+
         
 		// Check device id
 		if ((this.credentials) && (this.credentials.hasOwnProperty("devid"))) {

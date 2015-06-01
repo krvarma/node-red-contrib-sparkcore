@@ -1,6 +1,6 @@
 <!--
   Copyright 2014 Krishnaraj Varma
-  Copyright 2015 Chuan Khoo (0.0.13) for local cloud SSE (limited) support, renaming to Particle
+  Copyright 2015 Chuan Khoo (post-0.0.12) for local cloud SSE (limited) support, renaming to Particle, configuration node implementation
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,6 +15,45 @@
   limitations under the License.
 -->
 
+
+// Particle CONFIGURATION node
+<script type="text/x-red" data-template-name="particle-cloud">
+    <div class="form-row">
+        <label for="node-config-input-hostname"><i class="fa fa-server"></i> Cloud URL</label>
+        <input class="input-append-left" type="text" id="node-config-input-hostname" placeholder="IP or hostname" style="width:40%;">
+        <label for="node-config-input-port" style="margin-left: 10px; width: 35px; "> Port</label>
+        <input type="text" id="node-config-input-port" placeholder="8080" style="width:45px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-accesstoken"><i class="fa fa-key"></i> Access Token</label>
+        <input type="text" id="node-config-input-accesstoken">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('particle-cloud',{
+        category: 'config',
+        defaults: {
+            hostname {value:"https://api.particle.io",required:true},
+            port: {value:443,required:true,validate:RED.validators.number()},
+            accesstoken: {value:"",required:true},
+            name: {value:""}
+        },
+        credentials: {
+            accesstoken: {type: "password"}
+        },
+        label: function() {
+            return this.name || this.hostname + ":" + this.port;
+        }
+    });
+</script>
+
+
+// Particle IN node
 <script type="text/x-red" data-template-name="Particle in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
@@ -78,21 +117,30 @@
     RED.nodes.registerType('Particle in',{
         category: 'Particle',
         defaults: {
-			baseurl: {value:"https://api.particle.io"},
-			method: {value:"readmsg"},
+			baseurl: {value:"", type:"particle-cloud"},
+			method: {value:""},
 			fve: {value:""},
 			param: {value:""},
 			repeat: {value:0}
         },
+/*
+        defaults: {
+            baseurl: {value:"https://api.particle.io"},
+            method: {value:"readmsg"},
+            fve: {value:""},
+            param: {value:""},
+            repeat: {value:0}
+        },
+
+*/
 		credentials: {
-            devid: {type:"password"},
-            accesstoken: {type: "password"}
+            devid: {type:"password"}
+//            accesstoken: {type: "password"}
         },
         color:"#00ACED",
         inputs:1,
         outputs:1,
         icon: "particle.png",
-        paletteLabel: "Particle in",
         label: function() {
             if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
                 return this.name || this.method + " - " + this.fve;                
@@ -141,6 +189,7 @@
     });
 </script>
 
+// Particle OUT node
 <script type="text/x-red" data-template-name="Particle out">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
@@ -194,7 +243,6 @@
         outputs:1,
         icon: "particle.png",
         align: "right",
-        paletteLabel: "Particle out",
         label: function() {
             if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === "") {
                 return this.name || this.method + " - " + (this.fve || "dynamic");

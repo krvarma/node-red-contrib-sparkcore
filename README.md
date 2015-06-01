@@ -42,3 +42,12 @@ An equivalent of such requests using the RESTful API will resemble:
 `http://particlecloud.local:8080/v1/events/someEvent&access_token=123456789abcdef123456789abcdef123456789a`
 
 
+Credits
+-------
+
+This is a forked project that built off @krvarma's node-red-contrib-sparkcore initial work (0.0.12).
+
+Copyright 2014 Krishnaraj Varma
+Copyright 2015 Chuan Khoo (post-0.0.12) for local cloud SSE (limited) support, configuration node implementation, renaming to Particle, and cosmetic fixes.
+
+
