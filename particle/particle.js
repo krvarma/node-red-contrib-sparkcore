@@ -54,7 +54,7 @@ module.exports = function(RED) {
 		// note: code here runs when flow is re-deployed. n object refers to a node's instance configuration and so is unique between nodes
 		
 		// Get all properties
-		this.config = n.config;
+		this.config = n;
         this.interval_id = null;
 		this.repeat = n.repeat * 1000;
 		this.name = n.fve;
