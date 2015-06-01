@@ -220,7 +220,7 @@ module.exports = function(RED) {
 		});
     }
 	
-	RED.nodes.registerType("Particle IN",ParticleIN, {
+	RED.nodes.registerType("Particle in",ParticleIN, {
         credentials: {
             devid: {type:"password"},
             accesstoken: {type: "password"}
@@ -333,7 +333,7 @@ module.exports = function(RED) {
 		});
     }
 	
-	RED.nodes.registerType("Particle OUT",ParticleOUT, {
+	RED.nodes.registerType("Particle out",ParticleOUT, {
         credentials: {
             devid: {type:"password"},
             accesstoken: {type: "password"}

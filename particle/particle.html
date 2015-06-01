@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 
-<script type="text/x-red" data-template-name="Particle IN">
+<script type="text/x-red" data-template-name="Particle in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
         <input type="text" id="node-input-baseurl" placeholder="leave blank if using the Particle.io Cloud">
@@ -53,7 +53,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="Particle IN">
+<script type="text/x-red" data-help-name="Particle in">
     <p><b>Particle Device Input</b></p>
 	<p>
     <p>This node allows you to call a Particle Device function, read a variable or listen for incoming events.</p>
@@ -75,7 +75,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('Particle IN',{
+    RED.nodes.registerType('Particle in',{
         category: 'Particle',
         defaults: {
 			baseurl: {value:"https://api.particle.io"},
@@ -140,7 +140,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="Particle OUT">
+<script type="text/x-red" data-template-name="Particle out">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
         <input type="text" id="node-input-baseurl" placeholder="leave blank if you are using the Particle.io Cloud">
@@ -164,7 +164,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="Particle OUT">
+<script type="text/x-red" data-help-name="Particle out">
     <p><b>Particle Device Output</b></p>
 	<p>
     <p>This node allows you to call a Particle Device function.</p>
@@ -177,7 +177,7 @@
     <p>For further info see the <a href="https://particle.io/" target="_new">Particle website</a>.</p>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('Particle OUT',{
+    RED.nodes.registerType('Particle out',{
         category: 'Particle',
         defaults: {
 			baseurl: {value:"https://api.particle.io"},
