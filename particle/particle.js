@@ -92,7 +92,6 @@ module.exports = function(RED) {
 			this.error("No Particle access token set");
 		}
 		*/
-
         
 		// Check device id
 		if (this.credentials && this.credentials.hasOwnProperty("devid")) {

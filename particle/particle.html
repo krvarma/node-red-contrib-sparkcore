@@ -26,7 +26,7 @@
     </div>
     <div class="form-row">
         <label for="node-config-input-accesstoken"><i class="fa fa-key"></i> Access Token</label>
-        <input type="text" id="node-config-input-accesstoken">
+        <input type="password" id="node-config-input-accesstoken">
     </div>
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
@@ -35,7 +35,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('particle-cloud',ParticleCloudNode,{
+    RED.nodes.registerType('particle-cloud',{
         category: 'config',
         defaults: {
             hostname: {value:"https://api.particle.io",required:true},
