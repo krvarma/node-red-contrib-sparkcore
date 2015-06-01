@@ -112,7 +112,7 @@ module.exports = function(RED) {
 			else if(this.method == "subscribe"){
 				// if we're dealing with a local cloud, or if device ID is empty, fallback to public/event firehose & ignore device ID
 				var url;
-				if(ifLocal || !this.dev_id) {
+				if(this.isLocal || !this.dev_id) {
 					url = this.baseurl + "/v1/events/" + this.name + "?access_token=" + this.access_token;
 				} else {
 					url = this.baseurl + "/v1/devices/" + this.dev_id + "/events/" + this.name + "?access_token=" + this.access_token;
@@ -134,8 +134,14 @@ module.exports = function(RED) {
 					particlemodule.send(msg);
 				}, false);
 
+				this.es.onopen = function(){
+					this.status({fill:"green",shape:"dot",text:"SSE Connected"});
+					console.log('(Particle IN) SSE Connected');
+				};
+
 				this.es.onerror = function(){
-					console.log('(Particle IN) ES Error');
+					this.status({fill:"red",shape:"ring",text:"SSE Error"});
+					console.log('(Particle IN) SSE Error');
 				};
 			}
 

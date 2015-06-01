@@ -92,6 +92,7 @@
         inputs:1,
         outputs:1,
         icon: "particle.png",
+        paletteLabel: "Particle in",
         label: function() {
             if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
                 return this.name || this.method + " - " + this.fve;                
@@ -193,6 +194,7 @@
         outputs:1,
         icon: "particle.png",
         align: "right",
+        paletteLabel: "Particle out",
         label: function() {
             if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === "") {
                 return this.name || this.method + " - " + (this.fve || "dynamic");
