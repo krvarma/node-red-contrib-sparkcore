@@ -3,7 +3,7 @@ var Request = require("request");
 var querystring = require('querystring');
 
 module.exports = function(RED) {
-	// Node-RED Input Module
+	// Node-RED Input Module - base module for connecting to a Particle Cloud
     function ParticleIN(n) {
 		var particlemodule = null;
 	
@@ -18,7 +18,10 @@ module.exports = function(RED) {
 		this.param = n.param;
 		this.method = n.method;
 		this.baseurl = n.baseurl;
+		this.timeoutDelay = 100;
 	
+		console.log("IN: initialising!");
+
 		// Check base URL or default to Particle Cloud URL.
 		if(this.baseurl === null || this.baseurl === ''){
 			this.baseurl = "https://api.particle.io";
@@ -27,8 +30,10 @@ module.exports = function(RED) {
 		// Check access token
 		if ((this.credentials) && (this.credentials.hasOwnProperty("accesstoken"))) { 
 			this.access_token = this.credentials.accesstoken; 
+			this.status({});
 		}
         else { 
+			this.status({fill:"red",shape:"dot",text:""});
 			this.error("No Particle access token set"); 
 		}
         
@@ -39,16 +44,17 @@ module.exports = function(RED) {
         else {
         	// no devid set; check if user has setup a local cloud
         	if(this.method !== "subscribe" && this.baseurl === "https://api.particle.io" || this.baseurl === null || this.baseurl === '') {
+        		this.status({fill:"yellow",shape:"dot",text:""});
 				this.error("No Particle Device id set");
         	} else {
-        		// ignore as due to partial local cloud SSE support (public firehose)
+        		// ignore, due to partial local cloud SSE support (public firehose)
 				this.dev_id = "";
         	}
 		}
 		
 		setTimeout( function(){ particlemodule.emit("process",{}); }, 100);
 		
-		// Called when there an input
+		// Called when there an input from upstream node(s)
 		this.on("input", function(msg){
 			// Retrieve all parameters from Message
 			var val = msg.name;
@@ -79,12 +85,12 @@ module.exports = function(RED) {
 			console.log("Name: " + this.name);
 			console.log("Parameter: " + this.param);
 			
-			setTimeout( function(){ particlemodule.emit("process",{}); }, 100);
+			setTimeout( function(){ particlemodule.emit("process",{}); }, timeoutDelay);
 		});
 		
 		// Perform operations based on the method parameter.
 		this.on("process", function(){
-			// Function
+			// Call Particle Function
 			if(this.method == "function"){
 				// Check for repeat and start timer
 				if (this.repeat && !isNaN(this.repeat) && this.repeat > 0) {
@@ -96,10 +102,11 @@ module.exports = function(RED) {
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ particlemodule.emit("callfunction",{}); }, 100);
+					setTimeout( function(){ particlemodule.emit("callfunction",{}); }, timeoutDelay);
 				}
 			}
-			// Event Subscription
+
+			// SSE (Server-Sent-Event) Subscription
 			else if(this.method == "subscribe"){
 				// if we're dealing with a local cloud, fallback to public firehose & ignore device ID
 				var url;
@@ -120,7 +127,7 @@ module.exports = function(RED) {
 						raw: data,
 						payload:data.data,
 						published_at: data.published_at,
-						id: data.devid
+						id: data.coreid				// TODO: currently spark-server still uses coreid as property name
 					};
 				
 					particlemodule.send(msg);
@@ -141,7 +148,7 @@ module.exports = function(RED) {
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ particlemodule.emit("getvariable",{}); }, 100);
+					setTimeout( function(){ particlemodule.emit("getvariable",{}); }, timeoutDelay);
 				}
 			}
 		});
@@ -218,6 +225,7 @@ module.exports = function(RED) {
         }
 	});
 	
+
 	// Node-RED Output variable
 	function ParticleOUT(n) {
 		var particlemodule;
