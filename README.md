@@ -48,5 +48,6 @@ Credits
 This is a forked project that built off @krvarma's node-red-contrib-sparkcore initial work (0.0.12).
 
 Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
+
 Copyright 2015 Chuan Khoo (node-red-contrib-particle 0.0.1) for local cloud SSE (limited) support, configuration node implementation, renaming to Particle, and cosmetic fixes.
 

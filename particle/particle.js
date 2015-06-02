@@ -104,7 +104,7 @@ module.exports = function(RED) {
 			
 			// Retrieve payload
 			this.param = msg.payload;
-						
+
 			val = msg.operation;
 			
 			// Retrieve Operation
@@ -123,7 +123,7 @@ module.exports = function(RED) {
 			console.log("Name: " + this.name);
 			console.log("Parameter: " + this.param);
 			
-			setTimeout( function(){ particlemodule.emit("process",{}); }, timeoutDelay);
+			setTimeout( function(){ particlemodule.emit("process",{}); }, this.timeoutDelay);
 		});
 		
 		// Perform operations based on the method parameter.
@@ -140,7 +140,7 @@ module.exports = function(RED) {
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ particlemodule.emit("callfunction",{}); }, timeoutDelay);
+					setTimeout( function(){ particlemodule.emit("callfunction",{}); }, this.timeoutDelay);
 				}
 			}
 
@@ -193,7 +193,7 @@ module.exports = function(RED) {
 				} 
 				// There is no repeat, just start once
 				else if (this.name && this.name.length > 0){
-					setTimeout( function(){ particlemodule.emit("getvariable",{}); }, timeoutDelay);
+					setTimeout( function(){ particlemodule.emit("getvariable",{}); }, this.timeoutDelay);
 				}
 			}
 		});
