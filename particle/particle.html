@@ -1,9 +1,10 @@
 <!--
-  Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
   Copyright 2015 Chuan Khoo (node-red-contrib-particle 0.0.1), including:
-        local cloud SSE (limited) support
-        renaming to Particle
-        configuration node implementation
+    local cloud SSE (limited) support
+    renaming to Particle
+    configuration node implementation
+    reconfigured clearer IN/OUT nodes
+  Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +37,6 @@
         <input type="text" id="node-config-input-name" placeholder="Name">
     </div>
 </script>
-
 <script type="text/javascript">
     RED.nodes.registerType('particle-cloud',{
         category: 'config',
@@ -64,9 +64,9 @@
         oneditsave: function() {
             var credentials = {};
             var newToken = $('#node-config-input-accesstoken').val();
-            
+
             credentials.accesstoken = newToken;
-            
+
             console.log("(Particle CONFIG) oneditsave:");
             console.log(credentials);
 
@@ -81,35 +81,118 @@
             $.ajax({
                 url: 'particlecloud/'+this.id,
                 type: 'DELETE',
-                success: function(result) {}
+                success: function(result){}
             });
         }
     });
 </script>
+// end Particle CONFIGURATION node
 
 
-// Particle IN node
-<script type="text/x-red" data-template-name="Particle in">
+// Particle SSE input node
+<script type="text/x-red" data-template-name="ParticleSSE in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
         <input type="text" id="node-input-baseurl">
     </div>
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
-        <input type="password" id="node-input-devid" placeholder="leave blank for firehose/local Cloud SSE">
+        <input type="password" id="node-input-devid" placeholder="leave blank for firehose/local cloud">
     </div>
 	<br/>
 	<div class="form-row">
-        <label for="node-input-method"><i class="fa fa-tasks"></i> Method</label>
-        <select type="text" id="node-input-method" style="width:73%;">
-			<option value="readmsg">msg.operation</option>
-			<option value="function">Call a function</option>
-			<option value="variable">Read a Variable</option>
-			<option value="subscribe">Subscribe to Event (SSE)</option>
-        </select>
+        <label for="node-input-fve"><i class="icon-tag"></i> Event Name</label>
+        <input type="text" id="node-input-fve" placeholder="msg.name">
     </div>
+</script>
+<script type="text/x-red" data-help-name="ParticleSSE in">
+  <p><b>Particle SSE Input</b></p>
+	<p>
+    <p>This node allows you to listen to an incoming server-sent events (SSE) on the Particle cloud.</p>
+	  <p><i>Usage</i></p>
+	<p/>
+	<p><b>Subscribe to SSE</b></p>
+	<p>Enter name of the SSE in Event Name editbox.</p>
+  <p>Note that for local clouds, device-specific and device-and-event specific events are <a href="https://github.com/spark/spark-server/issues/53" target="_blank">currently <strong>not</strong> supported</a>. In this scenario, leave the <em>Device ID</em> and <em>Event Name</em> fields empty, and you will get the public event firehose as specified in the <strong>Name</strong> field.</p> Filter this result in node-RED by writing your own function.
+	<p>The resulting <b>msg.raw</b> contains the raw return JSON string, <b>msg.payload</b> contains the event data, <b>msg.id</b> contains the device id and <b>msg.published_at</b> contains the published date and time.</p>
+  <p>Sending input messages with msg.name, msg.val and msg.fve directly modifies the parameters used for the cloud connection.</p>
+  <p>For further info see the <a href="https://docs.particle.io/" target="_blank">Particle Docs website</a>.</p>
+</script>
+<script type="text/javascript">
+  RED.nodes.registerType('ParticleSSE in',{
+    category: 'Particle',
+    defaults: {
+		  baseurl: {value:"", type:"particle-cloud"},
+		  fve: {value:""}
+    },
+	  credentials: {
+      devid: {type:"password"}
+    },
+    color:"#00ACED",
+    inputs:1,
+    outputs:1,
+    icon: "particle.png",
+    label: function() {
+      if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
+        return this.name || "SSE: " + this.fve;
+      } else {
+        return this.name || "(" + $('#node-input-devid').val() + ") SSE: " + this.fve;
+      }
+    },
+    labelStyle: function() {
+      return this.name ? "node_label_italic" : "";
+    },
+	  oneditprepare: function() {
+      $.getJSON('particle/'+this.id,function(data) {
+			  console.log("(Particle SSE) oneditprepare:")
+        console.log(data);
+          if (data.devid) {
+            $('#node-input-devid').val(data.devid);
+          }
+          }
+      );
+    },
+	  oneditsave: function() {
+      var credentials = {};
+      var newDevId = $('#node-input-devid').val();
+
+		  credentials.devid = newDevId;
+
+      console.log("(Particle SSE) oneditsave:");
+      console.log(credentials);
+
+      $.ajax({
+        url: 'particle/'+this.id,
+        type: 'POST',
+        data: credentials,
+        success: function(result){}
+      });
+    },
+    ondelete: function() {
+      $.ajax({
+        url: 'particle/'+this.id,
+        type: 'DELETE',
+        success: function(result){}
+      });
+    }
+  });
+</script>
+// end SSE input node
+
+
+// Particle function call output node
+<script type="text/x-red" data-template-name="ParticleFunc out">
 	<div class="form-row">
-        <label for="node-input-fve"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
+        <input type="text" id="node-input-baseurl">
+    </div>
+    <div class="form-row">
+        <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
+        <input type="password" id="node-input-devid" placeholder="Device ID">
+    </div>
+	<br/>
+	<div class="form-row">
+        <label for="node-input-fve"><i class="icon-tag"></i> Cloud Function Name</label>
         <input type="text" id="node-input-fve" placeholder="msg.name">
     </div>
 	<div class="form-row">
@@ -122,181 +205,171 @@
         <input type="text" id="node-input-repeat" placeholder="msg.repeat">
     </div>
 </script>
-
-<script type="text/x-red" data-help-name="Particle in">
-    <p><b>Particle Device Input</b></p>
+<script type="text/x-red" data-help-name="ParticleFunc out">
+  <p><b>Particle Cloud Function Output</b></p>
 	<p>
-    <p>This node allows you to call a Particle Device function, read a variable or listen for incoming events.</p>
-	<p><i>Usage</i></p>
+    <p>This node allows you to call a cloud function registered to a specific Particle Device on the Particle cloud.</p>
+	  <p><i>Usage</i></p>
 	<p/>
-	<p><b>Call a function</b></p>
-	<p>Select <i>Call a function</i> from the Method dropdown list. Enter name of the function in Name editbox and enter Parameter value if any.<p>
-	<p>The resulting <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the return value of the function, <b>msg.id</b> contains the device id.
-	<p/>
-	<p><b>Read a variable</b></p>
-	<p>Select <i>Read a Variable</i> from the Method dropdown list. Enter name of the variable in Name editbox.</p>
-	<p>The resulting <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the value of the variable, <b>msg.id</b> contains the core id.</p>
-	<p/>
-	<p><b>Subscribe to SSE</b></p>
-	<p>Select <i>Subscribe to Events</i> from the Method dropdown list. Enter name of the SSE in Name editbox.</p>
-    <p>Note that for local clouds, device-specific and device-and-event specific events are currently <strong>not</strong> supported. In this scenario, leave the Device ID field empty and you will get the public event firehose as specified in the <strong>Name</strong> field.</p>
-	<p>The resulting <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the event data, <b>msg.id</b> contains the core id and <b>msg.published_at</b> contains the published date and time.
-    <p>For further info see the <a href="https://particle.io/" target="_new">Particle website</a>.</p>
+  <p>Enter Device ID where the cloud function is registered.<p>
+	<p>Enter name of the Particle function in Function Name field and enter Parameter value, if any.<p>
+  <p>If a repeat interval is desired, enter a value (in seconds) to the Repeat field. 0 = no repeat<p>
+  <p>For further info see the <a href="https://docs.particle.io/" target="_blank">Particle Docs website</a>.</p>
 </script>
-
 <script type="text/javascript">
-    RED.nodes.registerType('Particle in',{
-        category: 'Particle',
-        defaults: {
-			baseurl: {value:"", type:"particle-cloud"},
-			method: {value:""},
-			fve: {value:""},
-			param: {value:""},
-			repeat: {value:0}
-        },
-		credentials: {
-            devid: {type:"password"}
-        },
-        color:"#00ACED",
-        inputs:1,
-        outputs:1,
-        icon: "particle.png",
-        label: function() {
-            if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
-                return this.name || this.method + " - " + this.fve;                
-            } else {
-                return this.name || "(" + $('#node-input-devid').val() + ") " + this.method + " - " + this.fve;
-            }
-        },
-        labelStyle: function() {
-            return this.name?"node_label_italic":"";
-        },
-		oneditprepare: function() {
-            $.getJSON('particle/'+this.id,function(data) {
-				console.log("(Particle IN) oneditprepare:")
-                console.log(data);
-                if (data.devid) {
-                    $('#node-input-devid').val(data.devid);
-                }
-            });
-        },
-		oneditsave: function() {
-            var credentials = {};
-            var newDevId = $('#node-input-devid').val();
-            
-			credentials.devid = newDevId;
-			
-			console.log("(Particle IN) oneditsave:");
-            console.log(credentials);
-
-            $.ajax({
-                url: 'particle/'+this.id,
-                type: 'POST',
-                data: credentials,
-                success: function(result){}
-            });
-        },
-        ondelete: function() {
-            $.ajax({
-                url: 'particle/'+this.id,
-                type: 'DELETE',
-                success: function(result) {}
-            });
+    RED.nodes.registerType('ParticleFunc out',{
+      category: 'Particle',
+      defaults: {
+        baseurl: {value:"", type:"particle-cloud"},
+        method: {value:""},
+        fve: {value:""},
+        param: {value:""},
+        repeat: {value:0}
+      },
+      credentials: {
+        devid: {type:"password"}
+      },
+      color:"#00ACED",
+      inputs:1,
+      outputs:0,
+      icon: "particle.png",
+      label: function() {
+        if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
+          return this.name || "Function: " + this.fve;
+        } else {
+          return this.name || "(" + $('#node-input-devid').val() + ") Function: " + this.fve;
         }
+      },
+      labelStyle: function() {
+        return this.name?"node_label_italic":"";
+      },
+      oneditprepare: function() {
+        $.getJSON('particle/'+this.id,function(data) {
+          console.log("(ParticleFunc) oneditprepare:")
+          console.log(data);
+          if (data.devid) {
+            $('#node-input-devid').val(data.devid);
+          }
+        });
+      },
+      oneditsave: function() {
+        var credentials = {};
+        var newDevId = $('#node-input-devid').val();
+
+        credentials.devid = newDevId;
+
+        console.log("(Particle Func) oneditsave:");
+        console.log(credentials);
+
+        $.ajax({
+          url: 'particle/'+this.id,
+          type: 'POST',
+          data: credentials,
+          success: function(result){}
+        });
+      },
+      ondelete: function() {
+        $.ajax({
+          url: 'particle/'+this.id,
+          type: 'DELETE',
+          success: function(result){}
+        });
+      }
     });
 </script>
+// end Particle function call output node
 
-// Particle OUT node
-<script type="text/x-red" data-template-name="Particle out">
-    <div class="form-row">
+
+// Particle variable call in+out node
+<script type="text/x-red" data-template-name="ParticleVar">
+	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
         <input type="text" id="node-input-baseurl">
     </div>
     <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
-        <input type="password" id="node-input-devid" placeholder="Particle Device ID">
+        <input type="password" id="node-input-devid" placeholder="Device ID">
     </div>
 	<br/>
 	<div class="form-row">
-        <label for="node-input-fve"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-fve"><i class="icon-tag"></i> Device Variable Name</label>
         <input type="text" id="node-input-fve" placeholder="msg.name">
     </div>
+	<br/>
 	<div class="form-row">
-        <label for="node-input-param"><i class="icon-tag"></i> Parameter</label>
-        <input type="text" id="node-input-param" placeholder="msg.payload">
-    </div>
+        <label for="node-input-repeat"><i class="fa fa-repeat"></i> Repeat</label>
+        <input type="text" id="node-input-repeat" placeholder="msg.repeat">
+  </div>
 </script>
-
-<script type="text/x-red" data-help-name="Particle out">
-    <p><b>Particle Device Output</b></p>
+<script type="text/x-red" data-help-name="ParticleVar">
+  <p><b>Particle Cloud Device Variable</b></p>
 	<p>
-    <p><b>TODO: work-in-progress!</b></p>
-    <p>This node allows you to call a Particle Device function.</p>
-	<p><i>Usage</i></p>
+    <p>This node allows you to retrieve a variable registered to a Particle cloud by a specific Particle Device.</p>
+	  <p><i>Usage</i></p>
 	<p/>
-	<p><b>Call a function</b></p>
-	<p>Select <i>Call a function</i> from the Method dropdown list. Enter name of the function in Name editbox and enter Parameter value if any.<p>
-	<p>The resulting <b>msg.raw</b> contains the return JSON string, <b>msg.payload</b> contains the return value of the function, <b>msg.id</b> contains the core id, <b>msg.name</b> contains the name of the core.
-	<p/>
-    <p>For further info see the <a href="https://particle.io/" target="_new">Particle website</a>.</p>
+  <p>Enter Device ID where the variable is registered.<p>
+	<p>Enter name of the variable in the Variable Name field.<p>
+  <p>If a repeat interval is desired, enter a value (in seconds) to the Repeat field. 0 = no repeat<p>
+  <p>For further info see the <a href="https://docs.particle.io/" target="_blank">Particle Docs website</a>.</p>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('Particle out',{
-        category: 'Particle',
-        defaults: {
-            baseurl: {value:"", type:"particle-cloud"},
-			fve: {value:""},
-			param: {value:""}
-        },
-		credentials: {
-            devid: {type:"password"}
-        },
-        color:"#00ACED",
-        inputs:1,
-        outputs:1,
-        icon: "particle.png",
-        align: "right",
-        label: function() {
-            if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === "") {
-                return this.name || this.method + " - " + (this.fve || "dynamic");
-            } else {
-                return this.name || $('#node-input-devid').val() + " " + (this.fve || "dynamic");
-            }
-        },
-        labelStyle: function() {
-            return this.name?"node_label_italic":"";
-        },
-		oneditprepare: function() {
-            $.getJSON('particle/'+this.id,function(data) {
-                if (data.devid) {
-                    console.log("(Particle OUT) oneditprepare:");
-                    console.log(data);
-                    $('#node-input-devid').val(data.devid);
-                }
-            });
-        },
-		oneditsave: function() {
-            var credentials = {};
-            var newDevId = $('#node-input-devid').val();
-
-            credentials.devid = newDevId;
-
-            console.log("(Particle OUT) oneditsave:");
-            console.log(credentials);
-
-            $.ajax({
-                url: 'particle/'+this.id,
-                type: 'POST',
-                data: credentials,
-                success: function(result){}
-            });
-        },
-        ondelete: function() {
-            $.ajax({
-                url: 'particle/'+this.id,
-                type: 'DELETE',
-                success: function(result) {}
-            });
+    RED.nodes.registerType('ParticleVar',{
+      category: 'Particle',
+      defaults: {
+        baseurl: {value:"", type:"particle-cloud"},
+        method: {value:""},
+        fve: {value:""},
+        repeat: {value:0}
+      },
+      credentials: {
+        devid: {type:"password"}
+      },
+      color:"#00ACED",
+      inputs:1,
+      outputs:1,
+      icon: "particle.png",
+      label: function() {
+        if($('#node-input-devid').val() === undefined || $('#node-input-devid').val() === '') {
+          return this.name || "Variable: " + this.fve;
+        } else {
+          return this.name || "(" + $('#node-input-devid').val() + ") Variable: " + this.fve;
         }
+      },
+      labelStyle: function() {
+        return this.name?"node_label_italic":"";
+      },
+      oneditprepare: function() {
+        $.getJSON('particle/'+this.id,function(data) {
+          console.log("(ParticleVar) oneditprepare:")
+          console.log(data);
+          if (data.devid) {
+            $('#node-input-devid').val(data.devid);
+          }
+        });
+      },
+      oneditsave: function() {
+        var credentials = {};
+        var newDevId = $('#node-input-devid').val();
+
+        credentials.devid = newDevId;
+
+        console.log("(ParticleVar) oneditsave:");
+        console.log(credentials);
+
+        $.ajax({
+          url: 'particle/'+this.id,
+          type: 'POST',
+          data: credentials,
+          success: function(result){}
+        });
+      },
+      ondelete: function() {
+        $.ajax({
+          url: 'particle/'+this.id,
+          type: 'DELETE',
+          success: function(result){}
+        });
+      }
     });
 </script>
+// end Particle variable call in+out node
