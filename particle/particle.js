@@ -58,7 +58,7 @@ module.exports = function(RED) {
     this.devid = n.devid;
 		this.evtname = n.evtname;
 		this.baseurl = RED.nodes.getNode(n.baseurl);
-		this.timeoutDelay = 10;
+		this.timeoutDelay = 5;
 
 		// console.log("(ParticleSSE) cloud url: " + Object.keys(this.baseurl));
 		// console.log("(ParticleSSE) access token: " + this.baseurl.accesstoken);
@@ -97,6 +97,8 @@ module.exports = function(RED) {
 			setTimeout( function(){ particlemodule.emit("processSSE",{}); }, this.timeoutDelay);
 		});
 
+
+    /*********************************************/
     // SSE (Server-Sent-Event) Subscription
 		this.on("processSSE", function(){
 			// if we're dealing with a local cloud, or if device ID is empty, fallback to public/event firehose & ignore device ID
@@ -149,6 +151,7 @@ module.exports = function(RED) {
 	RED.nodes.registerType("ParticleSSE in", ParticleSSE, {});
   // end SSE (Server-Sent-Event) Subscription
 
+  /*********************************************/
   // ParticleFunc node - base module for calling Particle device cloud functions
   function ParticleFunc(n) {
     var particlemodule = null;
@@ -165,9 +168,10 @@ module.exports = function(RED) {
     this.devid = n.devid;
     this.fname = n.fname;
     this.param = n.param;
+    this.once = n.once;
     this.interval_id = null;
 		this.repeat = n.repeat * 1000;
-		this.timeoutDelay = 10;
+		this.timeoutDelay = 5;
 
 		// console.log("(ParticleFunc) cloud url: " + Object.keys(this.baseurl));
 		// console.log("(ParticleFunc) access token: " + this.baseurl.accesstoken);
@@ -183,13 +187,15 @@ module.exports = function(RED) {
 
 		// Check device id
     if(this.devid === null || this.devid === '') {
-      this.status({fill:"yellow",shape:"dot",text:""});
+      this.status({fill:"yellow",shape:"dot",text:"No Device ID"});
 			this.error("No Particle Device ID set");
     } else {
       this.status({});
     }
 
-		setTimeout( function(){ particlemodule.emit("processFunc",{}); }, this.timeoutDelay);
+    if(this.once) {
+        setTimeout( function(){ particlemodule.emit("processFunc",{}); }, this.timeoutDelay);
+    }
 
 		// Called when there an input from upstream node(s)
 		this.on("input", function(msg){
@@ -267,6 +273,8 @@ module.exports = function(RED) {
   // register ParticleFunc node
   RED.nodes.registerType("ParticleFunc out", ParticleFunc, {});
 
+
+  /*********************************************/
   // ParticleVar node - base module for retrieving Particle device variables
   function ParticleVar(n) {
     var particlemodule = null;
@@ -284,7 +292,7 @@ module.exports = function(RED) {
     this.getvar = n.getvar;
     this.interval_id = null;
 		this.repeat = n.repeat * 1000;
-		this.timeoutDelay = 10;
+		this.timeoutDelay = 5;
 
 		// console.log("(ParticleVar) cloud url: " + Object.keys(this.baseurl));
 		// console.log("(ParticleVar) access token: " + this.baseurl.accesstoken);

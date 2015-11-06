@@ -21,7 +21,7 @@
 -->
 
 
-// Particle CONFIGURATION node
+<!-- Particle CONFIGURATION node -->
 <script type="text/x-red" data-template-name="particle-cloud">
     <div class="form-row">
         <label for="node-config-input-host"><i class="fa fa-server"></i> Cloud URL</label>
@@ -87,10 +87,10 @@
         }
     });
 </script>
-// end Particle CONFIGURATION node
+<!-- end Particle CONFIGURATION node -->
 
 
-// Particle SSE input node
+<!-- Particle SSE input node -->
 <script type="text/x-red" data-template-name="ParticleSSE in">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
@@ -158,33 +158,39 @@
     }
   });
 </script>
-// end SSE input node
+<!-- end SSE input node -->
 
 
-// Particle function call output node
+<!-- Particle function call output node -->
 <script type="text/x-red" data-template-name="ParticleFunc out">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
         <input type="text" id="node-input-baseurl">
-    </div>
-    <div class="form-row">
+  </div>
+  <div class="form-row">
         <label for="node-input-devid"><i class="fa fa-bullseye"></i> Device ID</label>
         <input type="text" id="node-input-devid" placeholder="Device ID">
-    </div>
+  </div>
 	<br/>
 	<div class="form-row">
         <label for="node-input-fname"><i class="icon-tag"></i> Cloud Function</label>
         <input type="text" id="node-input-fname" placeholder="msg.name">
-    </div>
+  </div>
 	<div class="form-row">
         <label for="node-input-param"><i class="icon-tag"></i> Parameter</label>
         <input type="text" id="node-input-param" placeholder="msg.payload">
-    </div>
+  </div>
+	<br/>
+  <div class="form-row">
+      <label>&nbsp;</label>
+      <input type="checkbox" id="node-input-once" style="display: inline-block; width: auto; vertical-align: top;">
+      <label for="node-input-once" style="width: 70%;">Call function on start?</label>
+  </div>
 	<br/>
 	<div class="form-row">
         <label for="node-input-repeat"><i class="fa fa-repeat"></i> Repeat</label>
         <input type="text" id="node-input-repeat" placeholder="msg.repeat">
-    </div>
+  </div>
 </script>
 <script type="text/x-red" data-help-name="ParticleFunc out">
   <p><b>Particle Cloud Function Output</b></p>
@@ -205,6 +211,7 @@
       devid: {value:"", required:true},
       fname: {value:"", required:true},
       param: {value:""},
+      once: {value:false},
       repeat: {value:0}
     },
     color:"#00ACED",
@@ -229,10 +236,10 @@
     }
   });
 </script>
-// end Particle function call output node
+<!-- end Particle function call output node -->
 
 
-// Particle variable call in+out node
+<!-- Particle variable call in+out node -->
 <script type="text/x-red" data-template-name="ParticleVar">
 	<div class="form-row">
         <label for="node-input-baseurl"><i class="fa fa-server"></i> Cloud URL</label>
@@ -295,4 +302,4 @@
       }
     });
 </script>
-// end Particle variable call in+out node
+<!-- end Particle variable call in+out node -->
