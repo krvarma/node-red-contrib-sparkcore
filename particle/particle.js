@@ -137,10 +137,11 @@ module.exports = function(RED) {
     this.on("processSSE", function() {
       // if we're dealing with a local cloud, or if device ID is empty, fallback to public/event firehose & ignore device ID
       var url;
+      var eventname = encodeURIComponent(this.evtname);
       if (this.isLocal || !this.devid) {
-        url = this.baseurl.host + ":" + this.baseurl.port + "/v1/events/" + this.evtname + "?access_token=" + this.baseurl.accesstoken;
+        url = this.baseurl.host + ":" + this.baseurl.port + "/v1/events/" + eventname + "?access_token=" + this.baseurl.accesstoken;
       } else {
-        url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.devid + "/events/" + this.evtname + "?access_token=" + this.baseurl.accesstoken;
+        url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.devid + "/events/" + eventname + "?access_token=" + this.baseurl.accesstoken;
       }
 
       if (this.es != undefined) {
