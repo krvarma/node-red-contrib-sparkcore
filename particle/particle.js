@@ -1,29 +1,5 @@
 /*
-  Copyright 2015, 2016 Chuan Khoo (node-red-contrib-particle 0.0.1+), including:
-    local cloud SSE (limited) support
-    renaming to Particle
-    configuration node implementation
-    reconfigured, clearer IN/OUT nodes
-    status icon helpers
-    property modifiers from up-stream nodes
-
-    (Refer to the help pages for details)
-
-  Forked from initial work by kvarma:
-  Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
-
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+  https://github.com/chuank/node-red-contrib-particle
 */
 
 var EventSource = require('eventsource');
@@ -103,7 +79,7 @@ module.exports = function(RED) {
       var validOp = false;
       var val = msg;
 
-      // ignore if incoming message is invalid
+      // ignore if incoming message is invalid; otherwise store incoming message as new event name
       if (val != null) {
         if (val.topic === "evtname") {
           this.evtname = val.payload;
@@ -188,7 +164,7 @@ module.exports = function(RED) {
         particlemodule.status({
           fill: "red",
           shape: "ring",
-          text: "Error"
+          text: "Error - refer to log"
         });
         console.log('(Particle SSE) Error');
       };

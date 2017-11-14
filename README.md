@@ -37,6 +37,35 @@ Following are the return values:
  5. msg.published_at contain the published date and time
 
 
+Basic Example
+-------------
+
+Write something similar to this in your Particle Build code:
+
+```
+void loop() {
+    Particle.publish("randomnumber", String(random(100)), PRIVATE);
+    delay(10000);
+}
+```
+
+In node-RED, drop a Particle SSE node into the workspace, and connect a debug node to view the output:
+
+_[todo: image]_
+
+Configure the Particle node by adding your own Particle configuration credentials and access token.
+
+View the results via the debug node.
+
+
+FAQ
+---
+
+  **I keep getting an Error in the ParticleSSE node!**  
+  It's likely your Particle.io access token is incorrect. Regenerate a new token in build.particle.io, and try again with the new token in the configuration node.
+
+
+
 Local Cloud and SSE Limitations
 -------------------------------
 
@@ -54,6 +83,6 @@ Credits
 
 This is a forked project that built off @krvarma's `node-red-contrib-sparkcore` initial work (0.0.12).
 
-Copyright 2015, 2016 Chuan Khoo (node-red-contrib-particle 0.0.2+) for local cloud SSE (limited) support, configuration node implementation, dynamic property setting, implementation of separate nodes for clarity, renaming to Particle and other cosmetic fixes.
+Copyright 2015- Chuan Khoo (node-red-contrib-particle 0.0.2+) for local cloud SSE (limited) support, configuration node implementation, dynamic property setting, implementation of separate nodes for clarity, renaming to Particle and other cosmetic fixes.
 
 Copyright 2014 Krishnaraj Varma (node-red-contrib-sparkcore 0.0.12)
