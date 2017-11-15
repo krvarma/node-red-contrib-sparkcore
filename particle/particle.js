@@ -48,6 +48,7 @@ module.exports = function(RED) {
     this.devid = n.devid;
     this.evtname = n.evtname;
     this.baseurl = RED.nodes.getNode(n.baseurl);
+    this.consolelog = n.consolelog;
     this.timeoutDelay = 5; // ms
 
     // keep track of updated state (for updating status icons)
@@ -84,12 +85,12 @@ module.exports = function(RED) {
         if (val.topic === "evtname") {
           this.evtname = val.payload;
           this.propChanged = true;
-          console.log("(ParticleSSE) input new eventName:", this.evtname);
+          if(this.consolelog) console.log("(ParticleSSE) input new eventName:", this.evtname);
           validOp = true;
         } else if (val.topic === "devid") {
           this.devid = val.payload;
           this.propChanged = true;
-          console.log("(ParticleSSE) input new devID:", ((this.devid === '') ? "(noDevID/firehose)" : this.devid));
+          if(this.consolelog) console.log("(ParticleSSE) input new devID:", ((this.devid === '') ? "(noDevID/firehose)" : this.devid));
           validOp = true;
         }
       }
@@ -148,7 +149,7 @@ module.exports = function(RED) {
           shape: particlemodule.propChanged ? "ring" : "dot",
           text: particlemodule.propChanged ? "evtname/devid UPDATED OK" : "Connected"
         });
-        console.log('(ParticleSSE) Connected');
+        if(this.consolelog) console.log('(ParticleSSE) Connected');
       };
 
       this.es.onclose = function() {
@@ -157,7 +158,7 @@ module.exports = function(RED) {
           shape: "dot",
           text: "Closed"
         });
-        console.log('(ParticleSSE) Closed');
+        if(this.consolelog) console.log('(ParticleSSE) Closed');
       };
 
       this.es.onerror = function() {
@@ -166,7 +167,7 @@ module.exports = function(RED) {
           shape: "ring",
           text: "Error - refer to log"
         });
-        console.log('(Particle SSE) Error');
+        if(this.consolelog) console.log('(Particle SSE) Error');
       };
     });
   }
@@ -197,6 +198,7 @@ module.exports = function(RED) {
     this.once = n.once;
     this.interval_id = null;
     this.repeat = n.repeat * 1000;
+    this.consolelog = n.consolelog;
     this.timeoutDelay = 5; //ms
 
     // console.log("(ParticleFunc) INIT cloud url:", Object.keys(this.baseurl));
@@ -244,19 +246,19 @@ module.exports = function(RED) {
       if (val != null) {
         if (val.topic === "devid") {
           this.devid = val.payload;
-          console.log("(ParticleFunc) input new devid:", this.devid);
+          if(this.consolelog) console.log("(ParticleFunc) input new devid:", this.devid);
           validOp = true;
         } else if (val.topic === "fname") {
           this.fname = val.payload;
-          console.log("(ParticleFunc) input new funcName:", this.fname);
+          if(this.consolelog) console.log("(ParticleFunc) input new funcName:", this.fname);
           validOp = true;
         } else if (val.topic === "param") {
           this.param = val.payload;
-          console.log("(ParticleFunc) input new param:", this.param);
+          if(this.consolelog) console.log("(ParticleFunc) input new param:", this.param);
           validOp = true;
         } else if (val.topic === "repeat") {
           this.repeat = Number(val.payload) * 1000;
-          console.log("(ParticleFunc) input new repeat (ms):", this.repeat);
+          if(this.consolelog) console.log("(ParticleFunc) input new repeat (ms):", this.repeat);
           validOp = repeatChanged = true;
         }
       }
@@ -317,11 +319,13 @@ module.exports = function(RED) {
     this.on("callFunc", function() {
       var url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.devid + "/" + this.fname;
 
-      console.log("(ParticleFunc) Calling function...");
-      console.log("\tURL:", url);
-      console.log("\tDevice ID:", this.devid);
-      console.log("\tFunction Name:", this.fname);
-      console.log("\tParameter(s):", this.param);
+      if(this.consolelog) {
+        console.log("(ParticleFunc) Calling function...");
+        console.log("\tURL:", url);
+        console.log("\tDevice ID:", this.devid);
+        console.log("\tFunction Name:", this.fname);
+        console.log("\tParameter(s):", this.param);
+      }
 
       // build POST data and call Particle Device function
       Request.post(
@@ -369,7 +373,9 @@ module.exports = function(RED) {
     this.devid = n.devid;
     this.getvar = n.getvar;
     this.interval_id = null;
+    this.once = n.once;
     this.repeat = n.repeat * 1000;
+    this.consolelog = n.consolelog;
     this.timeoutDelay = 5;
 
     // console.log("(ParticleVar) INIT cloud url:", Object.keys(this.baseurl));
@@ -400,9 +406,11 @@ module.exports = function(RED) {
       this.status({});
     }
 
-    setTimeout(function() {
-      particlemodule.emit("processVar", {});
-    }, this.timeoutDelay);
+    if (this.once) { // run on init, if requested
+      setTimeout(function() {
+        particlemodule.emit("processVar", {});
+      }, this.timeoutDelay);
+    }
 
     // Called when there's an input from upstream node(s)
     this.on("input", function(msg) {
@@ -415,15 +423,15 @@ module.exports = function(RED) {
       if (val != null) {
         if (val.topic === "devid") {
           this.devid = val.payload;
-          console.log("(ParticleVar) input new devid:", this.devid);
+          if(this.consolelog) console.log("(ParticleVar) input new devid:", this.devid);
           validOp = true;
         } else if (val.topic === "getvar") {
           this.getvar = val.payload;
-          console.log("(ParticleVar) input new varName:", this.getvar);
+          if(this.consolelog) console.log("(ParticleVar) input new varName:", this.getvar);
           validOp = true;
         } else if (val.topic === "repeat") {
           this.repeat = Number(val.payload) * 1000;
-          console.log("(ParticleVar) input new repeat (ms):", this.repeat);
+          if(this.consolelog) console.log("(ParticleVar) input new repeat (ms):", this.repeat);
           validOp = repeatChanged = true;
         }
       }
@@ -475,10 +483,12 @@ module.exports = function(RED) {
     this.on("getVar", function() {
       var url = this.baseurl.host + ":" + this.baseurl.port + "/v1/devices/" + this.devid + "/" + this.getvar + "?access_token=" + this.baseurl.accesstoken;
 
-      console.log("(ParticleVar) Retrieving variable...");
-      console.log("\tURL:", url);
-      console.log("\tDevice ID:", this.devid);
-      console.log("\tVariable Name:", this.getvar);
+      if(this.consolelog) {
+        console.log("(ParticleVar) Retrieving variable...");
+        console.log("\tURL:", url);
+        console.log("\tDevice ID:", this.devid);
+        console.log("\tVariable Name:", this.getvar);
+      }
 
       // Read Particle device variable and send output once response is received
       Request.get(url,
@@ -517,21 +527,21 @@ module.exports = function(RED) {
   // ****************************
   ParticleSSE.prototype.close = function() {
     if (this.es != null) {
-      console.log("(Particle Node) EventSource closed.");
+      if(this.consolelog) console.log("(Particle Node) EventSource closed.");
       this.es.close();
     }
   }
 
   ParticleFunc.prototype.close = function() {
     if (this.interval_id != null) {
-      console.log("(ParticleFunc) Interval closed.");
+      if(this.consolelog) console.log("(ParticleFunc) Interval closed.");
       clearInterval(this.interval_id);
     }
   }
 
   ParticleVar.prototype.close = function() {
     if (this.interval_id != null) {
-      console.log("(ParticleVar) Interval closed.");
+      if(this.consolelog) console.log("(ParticleVar) Interval closed.");
       clearInterval(this.interval_id);
     }
   }
