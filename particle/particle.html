@@ -219,8 +219,8 @@
           <dt class="optional">topic <span class="property-type">string</span></dt>
           <dd> set topic to either <code>devid</code>, <code>fname</code>, <code>param</code> or <code>repeat</code>. Note that changing <code>devid</code> or <code>fname</code> will NOT trigger the function, only <code>param</code> will. Also, changing <code>repeat</code> will cause the function to trigger at the next new interval.</dd>
           <dt class="optional">payload <span class="property-type">string</span></dt>
-          <dd> depending on <code>topic</code>, <code>payload</code> will set new Device ID / Function name / parameter(s) for the node.<br /><br />
-          'shortcut': if upstream msg contains just <code>msg.payload</code> (and no <code>msg.topic</code>), it will be treated as a parameter string.</dd>
+          <dd> depending on <code>topic</code>, <code>payload</code> will set new Device ID / Function name / parameter(s) for the node.<br />
+          'shortcut': send just <code>msg.payload</code> without <code>msg.topic</code> to intepret the payload as a parameter string.</dd>
       </dl>
   <h3>Outputs</h3>
       <dl class="message-properties">

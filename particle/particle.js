@@ -271,13 +271,13 @@ module.exports = function(RED) {
 					this.status({
 						fill: "blue",
 						shape: "dot",
-						text: msg.payload
+						text: val.payload
 					});
 				} else {
 					this.status({
 						fill: "green",
 						shape: "ring",
-						text: val.topic + " modified by incoming message"
+						text: val.topic + " changed to " + val.payload
 					});
 				}
 
