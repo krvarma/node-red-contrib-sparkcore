@@ -240,10 +240,6 @@ module.exports = function(RED) {
 			var val = msg;
 			var execFunc = false;
 
-			if(this.consolelog) {
-				console.log("(ParticleFunc) #### ", val.topic, val.topic==null);
-			}
-
 			// ignore if incoming message is invalid
 			if (val != null) {
 				if (val.topic === "devid") {
@@ -262,7 +258,7 @@ module.exports = function(RED) {
 					this.repeat = Number(val.payload) * 1000;
 					if(this.consolelog) console.log("(ParticleFunc) input new repeat (ms):", this.repeat);
 					validOp = repeatChanged = true;
-				} else if (val.topic == null && val.payload != null) {		// 'shortcut' mode - easier way to call the function without specifying "param" as topic
+				} else if ((val.topic == null || val.topic == "") && val.payload != null) {		// 'shortcut' mode - easier way to call the function without specifying "param" as topic
 					this.param = val.payload;
 					validOp = execFunc = true;
 					if(this.consolelog) console.log("(ParticleFunc) shortcut func call:", this.param);
