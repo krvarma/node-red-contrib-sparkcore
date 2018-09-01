@@ -201,9 +201,6 @@ module.exports = function(RED) {
 		this.consolelog = n.consolelog;
 		this.timeoutDelay = 5; //ms
 
-		// console.log("(ParticleFunc) INIT cloud url:", Object.keys(this.baseurl));
-		// console.log("(ParticleFunc) INIT access token:", this.baseurl.accesstoken);
-
 		(this.baseurl.host === "https://api.particle.io") ? this.isLocal = false: this.isLocal = true;
 
 		if (this.baseurl.accesstoken == null || this.baseurl.accesstoken === "") {
@@ -242,6 +239,10 @@ module.exports = function(RED) {
 			var repeatChanged = false;
 			var val = msg;
 			var execFunc = false;
+
+			if(this.consolelog) {
+				console.log("(ParticleFunc) #### ", val.topic, val.topic==null);
+			}
 
 			// ignore if incoming message is invalid
 			if (val != null) {
