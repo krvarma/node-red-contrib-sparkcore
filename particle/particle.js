@@ -267,11 +267,19 @@ module.exports = function(RED) {
 
 			if (validOp) {
 				// signal to user that incoming messages have modified node settings
-				this.status({
-					fill: "green",
-					shape: "ring",
-					text: val.topic + " modified by incoming message"
-				});
+				if(execFunc) {
+					this.status({
+						fill: "blue",
+						shape: "dot",
+						text: msg.payload
+					});
+				} else {
+					this.status({
+						fill: "green",
+						shape: "ring",
+						text: val.topic + " modified by incoming message"
+					});
+				}
 
 				if (repeatChanged) {
 					// clear previous interval as we're setting this up again
