@@ -20,51 +20,51 @@
     </div>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('particle-cloud',{
-        category: 'config',
-        defaults: {
-            host: {value:"https://api.particle.io",required:true},
-            port: {value:443,required:true,validate:RED.validators.number()},
-            accesstoken: {value:"",required:true},
-            name: {value:""}
-        },
-        credentials: {
-            accesstoken: {type: "password"}
-        },
-        label: function() {
-            return this.name || this.baseurl + ":" + this.port;
-        },
-        oneditprepare: function() {
-            $.getJSON('particlecloud/'+this.id,function(data) {
-                // console.log("(Particle CONFIG) oneditprepare:", data);
-                if (data.accesstoken) {
-                    $('#node-config-input-accesstoken').val(data.accesstoken);
-                }
-            });
-        },
-        oneditsave: function() {
-            var credentials = {};
-            var newToken = $('#node-config-input-accesstoken').val();
+    RED.nodes.registerType("particle-cloud",{
+    	category: "config",
+    	defaults: {
+    		host: {value:"https://api.particle.io",required:true},
+    		port: {value:443,required:true,validate:RED.validators.number()},
+    		accesstoken: {value:"",required:true},
+    		name: {value:""}
+    	},
+    	credentials: {
+    		accesstoken: {type: "password"}
+    	},
+    	label: function() {
+    		return this.name || this.baseurl + ":" + this.port;
+    	},
+    	oneditprepare: function() {
+    		$.getJSON("particlecloud/"+this.id,function(data) {
+    			// console.log("(Particle CONFIG) oneditprepare:", data);
+    			if (data.accesstoken) {
+    				$("#node-config-input-accesstoken").val(data.accesstoken);
+    			}
+    		});
+    	},
+    	oneditsave: function() {
+    		var credentials = {};
+    		var newToken = $("#node-config-input-accesstoken").val();
 
-            credentials.accesstoken = newToken;
+    		credentials.accesstoken = newToken;
 
-            // console.log("(Particle CONFIG) oneditsave:");
-            // console.log(credentials);
+    		// console.log("(Particle CONFIG) oneditsave:");
+    		// console.log(credentials);
 
-            $.ajax({
-                url: 'particlecloud/'+this.id,
-                type: 'POST',
-                data: credentials,
-                success: function(result){}
-            });
-        },
-        ondelete: function() {
-            $.ajax({
-                url: 'particlecloud/'+this.id,
-                type: 'DELETE',
-                success: function(result){}
-            });
-        }
+    		$.ajax({
+    			url: "particlecloud/"+this.id,
+    			type: "POST",
+    			data: credentials,
+    			success: function(result){}
+    		});
+    	},
+    	ondelete: function() {
+    		$.ajax({
+    			url: "particlecloud/"+this.id,
+    			type: "DELETE",
+    			success: function(result){}
+    		});
+    	}
     });
 </script>
 <!-- end Particle CONFIGURATION node -->
@@ -137,38 +137,38 @@
 </script>
 <!-- code -->
 <script type="text/javascript">
-  RED.nodes.registerType('ParticleSSE in', {
-    category: 'Particle',
-    defaults: {
+  RED.nodes.registerType("ParticleSSE in", {
+  	category: "Particle",
+  	defaults: {
 		  baseurl: {value:"", type:"particle-cloud"},
 		  evtname: {value:"", required:true},
-      devid:   {value:""},
-      consolelog: {value:false}
-    },
-    color:"#00ACED",
-    inputs:1,
-    outputs:1,
-    icon: "particle.png",
-    label: function() {
-      if (this.evtname === undefined || this.evtname === '') {    // node has not been set with event name
-        return "ParticleSSE";
-      } else {
-        if(this.devid === undefined || this.devid === '') {       // no device ID provided
-          return "SSE: " + this.evtname;
-        } else {
-          return "SSE (" + this.devid + "): " + this.evtname;
-        }
-      }
-    },
-    labelStyle: function() {
-      return this.evtname ? "":"node_label_italic";
-    },
+  		devid:   {value:""},
+  		consolelog: {value:false}
+  	},
+  	color:"#00ACED",
+  	inputs:1,
+  	outputs:1,
+  	icon: "particle.png",
+  	label: function() {
+  		if (this.evtname === undefined || this.evtname === "") {    // node has not been set with event name
+  			return "ParticleSSE";
+  		} else {
+  			if(this.devid === undefined || this.devid === "") {       // no device ID provided
+  				return "SSE: " + this.evtname;
+  			} else {
+  				return "SSE (" + this.devid + "): " + this.evtname;
+  			}
+  		}
+  	},
+  	labelStyle: function() {
+  		return this.evtname ? "":"node_label_italic";
+  	},
 	  oneditprepare: function() {
-    },
+  	},
 	  oneditsave: function() {
-    },
-    ondelete: function() {
-    }
+  	},
+  	ondelete: function() {
+  	}
   });
 </script>
 <!-- end SSE node -->
@@ -217,9 +217,10 @@
   <h3>Inputs</h3>
       <dl class="message-properties">
           <dt class="optional">topic <span class="property-type">string</span></dt>
-          <dd> set topic to either <code>devid</code>, <code>fname</code> or <code>param</code>.</dd>
+          <dd> set topic to either <code>devid</code>, <code>fname</code>, <code>param</code> or <code>repeat</code>. Note that changing <code>devid</code> or <code>fname</code> will NOT trigger the function, only <code>param</code> will. Also, changing <code>repeat</code> will cause the function to trigger at the next new interval.</dd>
           <dt class="optional">payload <span class="property-type">string</span></dt>
-          <dd> depending on <code>topic</code>, <code>payload</code> will set new Device ID / Function name / parameter(s) for the node.</dd>
+          <dd> depending on <code>topic</code>, <code>payload</code> will set new Device ID / Function name / parameter(s) for the node.<br /><br />
+          'shortcut': if upstream msg contains just <code>msg.payload</code> (and no <code>msg.topic</code>), it will be treated as a parameter string.</dd>
       </dl>
   <h3>Outputs</h3>
       <dl class="message-properties">
@@ -260,38 +261,38 @@
 </script>
 <!-- code -->
 <script type="text/javascript">
-  RED.nodes.registerType('ParticleFunc out',{
-    category: 'Particle',
-    defaults: {
-      baseurl: {value:"", type:"particle-cloud"},
-      devid: {value:"", required:true},
-      fname: {value:"", required:true},
-      param: {value:""},
-      once: {value:false},
-      repeat: {value:0},
-      consolelog: {value:false}
-    },
-    color:"#00ACED",
-    inputs:1,
-    outputs:1,
-    icon: "particle.png",
-    align: "right",
-    label: function() {
-      if (this.fname === undefined || this.fname === '' || this.devid === undefined || this.devid === '') {    // node has not been set with required data
-        return "ParticleFunc";
-      } else {
-        return "func (" + this.devid + "): " + this.fname;
-      }
-    },
-    labelStyle: function() {
-      return this.fname ? "":"node_label_italic";
-    },
-    oneditprepare: function() {
-    },
-    oneditsave: function() {
-    },
-    ondelete: function() {
-    }
+  RED.nodes.registerType("ParticleFunc out",{
+  	category: "Particle",
+  	defaults: {
+  		baseurl: {value:"", type:"particle-cloud"},
+  		devid: {value:"", required:true},
+  		fname: {value:"", required:true},
+  		param: {value:""},
+  		once: {value:false},
+  		repeat: {value:0},
+  		consolelog: {value:false}
+  	},
+  	color:"#00ACED",
+  	inputs:1,
+  	outputs:1,
+  	icon: "particle.png",
+  	align: "right",
+  	label: function() {
+  		if (this.fname === undefined || this.fname === "" || this.devid === undefined || this.devid === "") {    // node has not been set with required data
+  			return "ParticleFunc";
+  		} else {
+  			return "func (" + this.devid + "): " + this.fname;
+  		}
+  	},
+  	labelStyle: function() {
+  		return this.fname ? "":"node_label_italic";
+  	},
+  	oneditprepare: function() {
+  	},
+  	oneditsave: function() {
+  	},
+  	ondelete: function() {
+  	}
   });
 </script>
 <!-- end Particle function call node -->
@@ -377,36 +378,36 @@
 </script>
 <!-- code -->
 <script type="text/javascript">
-    RED.nodes.registerType('ParticleVar',{
-      category: 'Particle',
-      defaults: {
-        baseurl: {value:"", type:"particle-cloud"},
-        devid: {value:"", required:true},
-        getvar: {value:"", required:true},
-        once: {value:false},
-        repeat: {value:0},
-        consolelog: {value:false}
-      },
-      color:"#00ACED",
-      inputs:1,
-      outputs:1,
-      icon: "particle.png",
-      label: function() {
-        if (this.getvar === undefined || this.getvar === '' || this.devid === undefined || this.devid === '') {    // node has not been set with required data
-          return "ParticleVar";
-        } else {
-          return "var (" + this.devid + "): " + this.getvar;
-        }
-      },
-      labelStyle: function() {
-        return this.getvar ? "":"node_label_italic";
-      },
-      oneditprepare: function() {
-      },
-      oneditsave: function() {
-      },
-      ondelete: function() {
-      }
+    RED.nodes.registerType("ParticleVar",{
+    	category: "Particle",
+    	defaults: {
+    		baseurl: {value:"", type:"particle-cloud"},
+    		devid: {value:"", required:true},
+    		getvar: {value:"", required:true},
+    		once: {value:false},
+    		repeat: {value:0},
+    		consolelog: {value:false}
+    	},
+    	color:"#00ACED",
+    	inputs:1,
+    	outputs:1,
+    	icon: "particle.png",
+    	label: function() {
+    		if (this.getvar === undefined || this.getvar === "" || this.devid === undefined || this.devid === "") {    // node has not been set with required data
+    			return "ParticleVar";
+    		} else {
+    			return "var (" + this.devid + "): " + this.getvar;
+    		}
+    	},
+    	labelStyle: function() {
+    		return this.getvar ? "":"node_label_italic";
+    	},
+    	oneditprepare: function() {
+    	},
+    	oneditsave: function() {
+    	},
+    	ondelete: function() {
+    	}
     });
 </script>
 <!-- end Particle variable node -->
