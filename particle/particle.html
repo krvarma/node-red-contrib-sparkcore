@@ -203,7 +203,7 @@
           <dt class="optional">topic <span class="property-type">string</span></dt>
           <dd> set topic to <code>evtname</code>.</dd>
           <dt class="required">payload <span class="property-type">string</span></dt>
-          <dd> depending on <code>topic</code>, <code>payload</code> will set new Event name for the node or publish an event using <code>payload</code> as the data.</dd>
+          <dd> depending on <code>topic</code>, <code>payload</code> will set new event name for the node or publish an event using <code>payload</code> as the data.</dd>
       </dl>
   <h3>Outputs</h3>
       <dl class="message-properties">
@@ -215,12 +215,14 @@
       <code>Cloud URL</code></br>
       <p>Add or choose an existing Particle cloud configuration.</p>
       <code>Event</code></br>
-      <p>Enter the Event name you want to publish.</p>
+      <p>Enter the event name you want to publish.</p>
+      <code>Use topic as Event Name?</code></br>
+      <p>When enabled, <code>topic</code> will be used as the event name as long as it is not blank and not "evtname".</p>
       <code>Verbose logging?</code></br>
       <p>When enabled, log everything to node-RED logs (warning: while good for testing, this can quickly overflow your log file).</p>
       <p>&nbsp;</p>
       <h4>Notes</h4>
-      <p>Sending input messages allows dynamic modification of the node&apos;s properties. Note that properties defined in each node&apos;s edit box remain and are restored when the flows are re-deployed. The labels on the nodes will also not change to reflect any new properties, but a green status ring and message will be shown next to nodes that have their properties dynamically modified by up-stream messages.</p>
+      <p>"NodeRed" will be used as an event name if event is blank and <code>Use topic as Event Name?</code> is unchecked.  Note that properties defined in each node&apos;s edit box remain and are restored when the flows are re-deployed. The labels on the nodes will also not change to reflect any new properties, but a green status ring and message will be shown next to nodes that have their properties dynamically modified by up-stream messages.</p>
   <h3>References</h3>
       <ul>
           <li><a href="https://docs.particle.io/" target="_blank">Particle Docs</a></li>
